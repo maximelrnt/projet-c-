@@ -1,0 +1,7 @@
+categorie; nom; hp; atk; def; mercyGoal; act1; act2; act3; act4
+NORMAL; Slime Bleu; 30; 8; 2; 100; 1; 2; ; 
+NORMAL; Rat Geant; 25; 10; 1; 100; 3; 7; ; 
+MINIBOSS; Chevalier Rouille; 70; 15; 8; 100; 1; 4; 8; 
+MINIBOSS; Sorciere des Marais; 60; 20; 4; 100; 2; 3; 9; 
+BOSS; Dragon Ancien; 150; 30; 15; 100; 1; 2; 4; 6
+BOSS; Lich Corrompue; 120; 35; 10; 100; 3; 5; 7; 9

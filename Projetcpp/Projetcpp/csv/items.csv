@@ -1,0 +1,4 @@
+nom; type; valeur; quantite
+Potion de soin; HEAL; 30; 3
+Grande Potion; HEAL; 60; 1
+Herbe medicale; HEAL; 15; 5
