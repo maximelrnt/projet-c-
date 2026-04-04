@@ -7,7 +7,7 @@
 
 ---
 
-**ACCUEIL** 
+**ACCUEIL**   
 - [**PROJET**](./dossiers%20md/Projet.md)
 - [**PLAN D'IMPLEMENTATION**](./dossiers%20md/implementation_plan.md)
 
