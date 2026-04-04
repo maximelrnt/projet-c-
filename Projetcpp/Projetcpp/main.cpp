@@ -1,21 +1,25 @@
 /*
  * main.cpp
- *
- * Point d'entrée du programme ALTERDUNE.
- * Il se contente d'instancier le GameManager et de lancer
- * la fonction de démarrage qui gère toute la logique du projet.
+ * Point d'entree du programme ALTERDUNE.
+ * Active les couleurs ANSI dans la console Windows,
+ * puis lance le GameManager.
  */
 #include "GameManager.h"
 #include <ctime>
 #include <cstdlib>
+#include <windows.h>
 
 using namespace std;
 
 int main() {
-    // Initialisation du générateur de nombres aléatoires pour les combats
+    // Active les codes couleur ANSI dans la console Windows 10+
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
     srand(static_cast<unsigned int>(time(NULL)));
 
-    // Création du moteur de jeu et lancement de la partie
     GameManager game;
     game.demarrer();
 

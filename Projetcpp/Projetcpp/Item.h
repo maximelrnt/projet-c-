@@ -3,6 +3,14 @@
 
 using namespace std;
 
+// Forward declaration pour eviter l'inclusion circulaire avec Player
+class Player;
+
+/*
+ * Item : Classe abstraite de base pour tous les objets de l'inventaire.
+ * Elle definit les proprietes communes (nom, type, valeur, quantite) et
+ * oblige les sous-classes a implementer applyEffect() pour definir leur effet.
+ */
 class Item {
 protected:
     string m_name;
@@ -26,8 +34,7 @@ public:
         return true;
     }
 
+    // Chaque sous-classe doit definir l'effet applique au joueur
+    virtual void applyEffect(Player& player) = 0;
     virtual void display() const;
-    
-    // NB: L'énoncé veut que ceci soit abstrait, mais comme on ne crée
-    // pas la classe HealItem, on laisse Item "normal" pour compiler.
 };

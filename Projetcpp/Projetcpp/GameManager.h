@@ -8,6 +8,12 @@
 
 using namespace std;
 
+/*
+ * GameManager : Chef d'orchestre du jeu.
+ * Il gere le demarrage (saisie du nom, chargement des CSV),
+ * la boucle du menu principal, le declenchement des combats,
+ * et les conditions de fin de partie (10 victoires, mort du joueur).
+ */
 class GameManager {
 private:
     Player* m_player;
@@ -25,4 +31,5 @@ public:
 
     void showMainMenu();
     void lancerCombat();
+    void showEnding();
 };

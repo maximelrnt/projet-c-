@@ -2,8 +2,9 @@
 
 > **ESILV – A3 – Programmation Orientée Objet en C++**  
 > Auteur du sujet : Daniel Wladdimiro  
-> Binôme : Louis Le Forestier & Maxime …  
-> Soutenance mini-suivi : **08/04** | Soutenance P1 : **29/04** | P2 : **06/05**
+> Binôme : Louis Le Forestier & Maxime  
+> Soutenance mini-suivi : **08/04** | Soutenance P1 : **29/04** | P2 : **06/05**  
+> **Dernière mise à jour : 04/04/2026**
 
 ---
 
@@ -36,62 +37,61 @@ La partie se termine après **10 victoires**. Le type de fin (Génocidaire / Pac
 
 ## 2. Architecture des fichiers
 
+### 2a. Architecture CIBLE (plan complet)
+
 ```
 Projetcpp/
 │
-├── main.cpp                  ← Point d'entrée, boucle principale du jeu
+├── main.cpp                  ✅ Fait (couleurs ANSI activees)
+├── Entity.h                  ✅ Fait
+├── Player.h / .cpp           ✅ Fait (inventaire inline dans Player)
+├── Monster.h / .cpp          ✅ Fait
+├── Item.h / .cpp             ✅ Fait (abstraite)
+├── ActionAct.h / .cpp        ✅ Fait (catalogue statique integre)
+├── Bestiary.h / .cpp         ✅ Fait (BestiaryEntry = struct dans Bestiary.h)
+├── GameManager.h / .cpp      ✅ Fait (combat et fins integres)
 │
-├── Entity/
-│   ├── Entity.h              ← Classe de base abstraite
-│   ├── Entity.cpp
-│   ├── Player.h              ← Hérite de Entity
-│   ├── Player.cpp
-│   ├── Monster.h             ← Hérite de Entity
-│   └── Monster.cpp
+├── HealItem.h / .cpp         ✅ Fait (polymorphisme Item)
+├── Combat.h / .cpp           ✅ Fait (coeur du gameplay)
 │
-├── Items/
-│   ├── Item.h                ← Classe de base des objets
-│   ├── Item.cpp
-│   ├── HealItem.h            ← Hérite de Item (type HEAL)
-│   └── HealItem.cpp
+├── Inventory.h / .cpp        ❌ Optionnel (refactoring)
+├── ActCatalogue.h / .cpp     ❌ Optionnel (refactoring)
+├── FileLoader.h / .cpp       ❌ Optionnel (refactoring)
+├── SaveManager.h / .cpp      ❌ Bonus
 │
-├── Inventory/
-│   ├── Inventory.h           ← Composition : contient des Item*
-│   └── Inventory.cpp
+└── csv/
+    ├── items.csv             ✅ Fait (3 objets de soin)
+    └── monsters.csv          ✅ Fait (IDs d'action texte)
+```
+
+### 2b. Architecture IDÉALE (si refactoring complet)
+
+```
+Projetcpp/
 │
-├── Act/
-│   ├── ActAction.h           ← Représente une action ACT (id, texte, mercyImpact)
-│   ├── ActAction.cpp
-│   ├── ActCatalogue.h        ← Catalogue global des actions ACT (≥ 8)
-│   └── ActCatalogue.cpp
+├── main.cpp                  ← Point d'entrée
+├── Entity.h / .cpp           ← Classe abstraite de base
+├── Player.h / .cpp           ← Hérite de Entity
+├── Monster.h / .cpp          ← Hérite de Entity
+├── Item.h / .cpp             ← Classe abstraite (base Item)
+├── HealItem.h / .cpp         ← Hérite de Item (type HEAL)
+├── Inventory.h / .cpp        ← Composition : contient des Item*
+├── ActAction.h / .cpp        ← Une action ACT (id, texte, mercyImpact)
+├── ActCatalogue.h / .cpp     ← Catalogue global des 10 actions
+├── Combat.h / .cpp           ← Gère un combat Player vs Monster
+├── BestiaryEntry.h / .cpp    ← Une entrée du bestiaire
+├── Bestiary.h / .cpp         ← Collection de BestiaryEntry
+├── GameManager.h / .cpp      ← Chef d'orchestre (= "Game" dans le plan)
+├── FileLoader.h / .cpp       ← Lecture des CSV
+├── SaveManager.h / .cpp      ← 🆕 Sauvegarde/chargement (BONUS)
 │
-├── Combat/
-│   ├── Combat.h              ← Gère un combat entre Player et Monster
-│   └── Combat.cpp
-│
-├── Bestiary/
-│   ├── BestiaryEntry.h       ← Une entrée du bestiaire (monstre + résultat)
-│   ├── BestiaryEntry.cpp
-│   ├── Bestiary.h            ← Liste des entrées + affichage
-│   └── Bestiary.cpp
-│
-├── Game/
-│   ├── Game.h                ← Orchestre tout : menus, stats, boucle
-│   └── Game.cpp
-│
-├── Utils/
-│   ├── FileLoader.h          ← Lecture des fichiers CSV
-│   ├── FileLoader.cpp
-│   ├── SaveManager.h         ← 🆕 Sauvegarde / chargement de partie
-│   └── SaveManager.cpp
-│
-└── Data/
-    ├── items.csv             ← Inventaire initial
-    ├── monsters.csv          ← Monstres disponibles
+└── csv/
+    ├── items.csv
+    ├── monsters.csv
     └── saves/
-        ├── slot1.sav         ← 🆕 Slot de sauvegarde 1
-        ├── slot2.sav         ← 🆕 Slot de sauvegarde 2
-        └── slot3.sav         ← 🆕 Slot de sauvegarde 3
+        ├── slot1.sav
+        ├── slot2.sav
+        └── slot3.sav
 ```
 
 ---
@@ -334,6 +334,7 @@ Monster m_monster;   // copie fraîche du monstre
 - `int calcDamage(int defenderMaxHp)` → `rand(0, defenderMaxHp)`
 - `void displaySeparator() const`
 - `void displayStatus() const` → affiche HP joueur + HP monstre + Mercy
+- `void afficherVictoire() const` → affiche le cadre de victoire avec stats & pause (systeme)
 - `bool m_monsterKilled` / `bool m_monsterSpared` → résultat
 
 **Résultat :**
@@ -755,17 +756,37 @@ BOSS; OmbreDesert; 180; 45; 12; 100; ENCOURAGER; MIMER; PLEURER; PROVOQUER
 
 ## 9. Checklist mini-suivi 08/04
 
-- [ ] `Entity.h` + `Entity.cpp` — classe abstraite avec attributs et méthodes virtuelles
-- [ ] `Player.h` + `Player.cpp` — hérite de Entity, intègre Inventory
-- [ ] `Monster.h` + `Monster.cpp` — hérite de Entity, enum MonsterCategory
-- [ ] `Item.h` + `Item.cpp` — classe abstraite
-- [ ] `HealItem.h` + `HealItem.cpp` — implémente applyEffect()
-- [ ] `Inventory.h` + `Inventory.cpp` — composition, vector<Item*>
-- [ ] `ActAction.h` + `ActCatalogue.h` — min 8 actions dont 2 négatives
-- [ ] `FileLoader.h` — chargement CSV fonctionnel
-- [ ] `Data/items.csv` + `Data/monsters.csv` — fichiers de données prêts
-- [ ] **UML** dessiné sur papier/draw.io (conforme à ce document)
-- [ ] `main.cpp` — affiche résumé initial (nom, HP, inventaire) après chargement CSV
+> **Légende :** ✅ Fait | ⚠️ Partiel / à corriger | ❌ À faire
+
+### Classes et fichiers
+- ✅ `Entity.h` — classe abstraite avec `display()` et `getType()` virtuelles pures
+- ✅ `Player.h` + `Player.cpp` — hérite de Entity, kills/spared/victories
+- ✅ `Monster.h` + `Monster.cpp` — hérite de Entity, enum `MonsterCategory`, `clone()`
+- ✅ `Item.h` + `Item.cpp` — **abstraite** avec `applyEffect()=0`
+- ✅ `HealItem.h` + `HealItem.cpp` — sous-classe concrète de Item
+- ✅ `ActionAct.h` + `ActionAct.cpp` — 10 actions dont 2 négatives ; catalogue statique
+- ✅ `Bestiary.h` + `Bestiary.cpp` — journal des monstres vaincus
+- ✅ `GameManager.h` + `GameManager.cpp` — menu principal, combat et fins
+- ✅ `main.cpp` — active les couleurs ANSI et lance le jeu
+
+### Données CSV
+- ✅ `csv/items.csv` — 3 objets de soin fonctionnels
+- ✅ `csv/monsters.csv` — IDs d'actions texte (FLATTER, CHANTER...)
+
+### Fonctionnalités
+- ✅ Chargement CSV items → inventaire joueur
+- ✅ Chargement CSV monstres → pool de monstres
+- ✅ Menu principal (statistiques, bestiaire, inventaire, quitter)
+- ✅ **Système de combat** (FIGHT / ACT / ITEM / MERCY) — **FONCTIONNEL**
+- ✅ Condition de fin (10 victoires) + 3 endings
+- ✅ Liaison ACT : affichage des actions du monstre pendant le combat
+- ✅ **Esthetique** : ASCII Art, couleurs ANSI, `system("cls")` pour un UI propre.
+
+### Pour la soutenance (must-have avant 08/04)
+- ✅ Créer `HealItem.h/.cpp` (polymorphisme)
+- ✅ Corriger `monsters.csv` (IDs texte)
+- ❌ **UML** dessiné (papier ou draw.io, conforme à la section 4)
+- ✅ Démo : combat complet + navigation menu + fin de jeu
 
 ---
 
