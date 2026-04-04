@@ -7,6 +7,12 @@
 
 ---
 
+**ACCUEIL** 
+[**PROJET**](./dossiers%20md/PROJET.md)
+[**PLAN D'IMPLEMENTATION**](./dossiers%20md/IMPLEMENTATION_PLAN.md)
+
+---
+
 ## 1. Introduction
 La programmation orientée objet (POO) est un paradigme fondamental pour le développement de logiciels structurés et modulaires. Ce projet doit être réalisé en binôme. Il propose la création d'un mini-jeu de type RPG nommé ALTERDUNE, où les entités (joueur, monstres, objets) sont modélisées sous forme de classes. 
 
