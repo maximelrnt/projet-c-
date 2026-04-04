@@ -1,45 +1,28 @@
-// =============================================================================
-// ActionAct.cpp
-//
-// Implémentation de la classe ActionAct et définition du catalogue des actions.
-// Voir ActionAct.h pour le rôle général de cette classe.
-// =============================================================================
 #include "ActionAct.h"
 #include <iostream>
 
 using namespace std;
 
-// Constructeur : initialise l'id, la description et l'impact sur la jauge Mercy
-ActionAct::ActionAct(int id, const string& description, int impactMercy)
-    : id(id), description(description), impactMercy(impactMercy) {}
-
-// --- Getters ---
-int ActionAct::getId() const { return id; }
-string ActionAct::getDescription() const { return description; }
-int ActionAct::getImpactMercy() const { return impactMercy; }
-
-// Affiche l'action avec son impact de manière lisible
-void ActionAct::afficher() const {
-    cout << "  [" << id << "] " << description;
-    if (impactMercy > 0)
+void ActAction::display() const {
+    cout << "  [" << m_id << "] " << m_displayText;
+    if (m_mercyImpact > 0)
         cout << "  (+Mercy)";
-    else if (impactMercy < 0)
+    else if (m_mercyImpact < 0)
         cout << "  (-Mercy)";
     cout << endl;
 }
 
-// Catalogue statique des 10 actions disponibles dans le jeu.
-vector<ActionAct> ActionAct::getCatalogue() {
+vector<ActAction> ActAction::getCatalogue() {
     return {
-        ActionAct(1, "Parler calmement",         +20),
-        ActionAct(2, "Complimenter",              +25),
-        ActionAct(3, "Chanter une berceuse",      +30),
-        ActionAct(4, "Faire un câlin",            +35),
-        ActionAct(5, "Observer en silence",         0),
-        ActionAct(6, "Imiter le monstre",           0),
-        ActionAct(7, "Insulter le monstre",       -20),
-        ActionAct(8, "Provoquer agressivement",   -30),
-        ActionAct(9, "Proposer un accord",        +15),
-        ActionAct(10, "Danser ridiculement",      +10),
+        ActAction("FLATTER", "Tu flattes le monstre avec eloquence.", +20),
+        ActAction("CHANTER", "Tu chantes une melodie apaisante.", +25),
+        ActAction("DANSER", "Tu executes une danse bizarre.", +15),
+        ActAction("ENCOURAGER", "Tu encourages le monstre.", +10),
+        ActAction("INTERROGER", "Tu poses des questions sur sa vie.", +5),
+        ActAction("REGARDER", "Tu observes le monstre en silence.", 0),
+        ActAction("INSULTER", "Tu insultes sauvagement le monstre !", -20),
+        ActAction("PROVOQUER", "Tu provoques le monstre avec arrogance.", -30),
+        ActAction("MIMER", "Tu mimes ses attaques de facon comique.", +10),
+        ActAction("PLEURER", "Tu fonds en larmes devant le monstre.", +5)
     };
 }

@@ -1,49 +1,42 @@
-// =============================================================================
-// Bestiary.cpp
-//
-// Implémentation des méthodes de la classe Bestiary.
-// Voir Bestiary.h pour le rôle général de cette classe.
-// =============================================================================
 #include "Bestiary.h"
+#include "Monster.h"
 #include <iostream>
 
 using namespace std;
 
-// Ajoute une nouvelle entrée au bestiaire après un combat terminé
-void Bestiary::ajouterEntree(const string& nom, const string& categorie,
-                              int hp, int atk, int def, bool eteEpargne) {
-    BestiaryEntry entree = {nom, categorie, hp, atk, def, eteEpargne};
-    entrees.push_back(entree);
+void BestiaryEntry::display() const {
+    cout << "  [" << m_category << "] " << m_monsterName
+         << " | HP:" << m_hp << " ATK:" << m_atk << " DEF:" << m_def
+         << " | " << (m_wasKilled ? "TUE" : "EPARGNE") << endl;
 }
 
-// Affiche tous les monstres rencontrés pendant la partie
-void Bestiary::afficher() const {
-    if (entrees.empty()) {
+void Bestiary::addEntry(const Monster& m, bool killed) {
+    m_entries.push_back(BestiaryEntry(m, killed));
+}
+
+void Bestiary::display() const {
+    if (m_entries.empty()) {
         cout << "  Aucun monstre rencontre pour l'instant." << endl;
         return;
     }
     cout << "=== BESTIAIRE ===" << endl;
-    for (const auto& e : entrees) {
-        cout << "  [" << e.categorie << "] " << e.nom
-                  << " | HP:" << e.hp << " ATK:" << e.atk << " DEF:" << e.def
-                  << " | " << (e.eteEpargne ? "EPARGNE" : "TUE") << endl;
+    for (const auto& e : m_entries) {
+        e.display();
     }
 }
 
-// Compte les monstres tués
-int Bestiary::getNbTues() const {
+int Bestiary::totalKilled() const {
     int count = 0;
-    for (const auto& e : entrees) {
-        if (!e.eteEpargne) count++;
+    for (const auto& e : m_entries) {
+        if (e.wasKilled()) count++;
     }
     return count;
 }
 
-// Compte les monstres épargnés
-int Bestiary::getNbEpargnes() const {
+int Bestiary::totalSpared() const {
     int count = 0;
-    for (const auto& e : entrees) {
-        if (e.eteEpargne) count++;
+    for (const auto& e : m_entries) {
+        if (!e.wasKilled()) count++;
     }
     return count;
 }

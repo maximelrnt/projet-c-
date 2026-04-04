@@ -1,36 +1,29 @@
-/*
- * Monster.cpp
- * Implementation de la logique des monstres. Gere l'attaque aleatoire
- * et l'evolution de la jauge Mercy.
- */
 #include "Monster.h"
 #include <iostream>
-#include <cstdlib>
+
 using namespace std;
 
-Monster::Monster(string nom, int hpMax, int atk, int def, int objMercy, string categorie)
-    : Entity(nom, hpMax), atk(atk), def(def), jaugeMercy(0), objMercy(objMercy), categorie(categorie) {}
+Monster::Monster(string name, MonsterCategory cat, int hp, int atk, int def, int mercyGoal, vector<string> actIds)
+    : Entity(name, hp, atk, def), m_category(cat), m_mercy(0), m_mercyGoal(mercyGoal), m_actIds(actIds) {}
 
-void Monster::modifierMercy(int montant) {
-    jaugeMercy += montant;
-    if (jaugeMercy < 0) jaugeMercy = 0;
-    if (jaugeMercy > objMercy) jaugeMercy = objMercy;
+void Monster::display() const {
+    cout << m_name << " (" << getCategoryStr() << ") - HP : " << m_hp << "/" << m_hpMax 
+         << " | Mercy : " << m_mercy << "/" << m_mercyGoal << endl;
 }
 
-void Monster::attaquer(Entity& cible) {
-    // Formule imposée par l'énoncé : degats = rand(0, HP_max_cible)
-    int degats = rand() % (cible.getHpMax() + 1);
-    if (degats == 0)
-        cout << "  " << nom << " a rate son attaque !" << endl;
-    else {
-        cout << "  " << nom << " vous inflige " << degats << " degats." << endl;
-        cible.recevoirDegats(degats);
-    }
+string Monster::getCategoryStr() const {
+    if (m_category == MonsterCategory::NORMAL) return "NORMAL";
+    if (m_category == MonsterCategory::MINIBOSS) return "MINIBOSS";
+    return "BOSS";
 }
 
-void Monster::afficherInfos() const {
-    cout << "--- MONSTRE : " << nom << " (" << categorie << ") ---" << endl;
-    cout << "  HP : " << hpActuels << " / " << hpMax << endl;
-    cout << "  ATK : " << atk << " | DEF : " << def << endl;
-    cout << "  MERCY : " << jaugeMercy << " / " << objMercy << endl;
+int Monster::getActCount() const {
+    if (m_category == MonsterCategory::NORMAL) return 2;
+    if (m_category == MonsterCategory::MINIBOSS) return 3;
+    return 4;
+}
+
+Monster Monster::clone() const {
+    // Retourne une nouvelle instance avec la jauge de Mercy et les HP ré-initialisés
+    return Monster(m_name, m_category, m_hpMax, m_atk, m_def, m_mercyGoal, m_actIds);
 }

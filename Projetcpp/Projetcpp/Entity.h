@@ -1,41 +1,43 @@
-/*
- * Entity.h
- *
- * Classe abstraite de base pour tous les personnages du jeu (Joueur et Monstres).
- * Elle définit les attributs essentiels comme le nom et les points de vie (HP).
- * Elle impose une interface commune avec les fonctions virtuelles pures
- * 'attaquer' et 'afficherInfos', permettant le polymorphisme en combat.
- */
 #pragma once
 #include <string>
+
 using namespace std;
 
 class Entity {
 protected:
-    string nom;
-    int hpMax;
-    int hpActuels;
+    string m_name;
+    int m_hp;
+    int m_hpMax;
+    int m_atk;
+    int m_def;
 
 public:
-    Entity(string nom, int hpMax) : nom(nom), hpMax(hpMax), hpActuels(hpMax) {}
+    Entity(string name, int hp, int atk, int def) 
+        : m_name(name), m_hp(hp), m_hpMax(hp), m_atk(atk), m_def(def) {}
     virtual ~Entity() {}
 
-    string getNom() const { return nom; }
-    int getHpMax() const { return hpMax; }
-    int getHpActuels() const { return hpActuels; }
+    // Accesseurs
+    string getName() const { return m_name; }
+    int getHp() const { return m_hp; }
+    int getHpMax() const { return m_hpMax; }
+    int getAtk() const { return m_atk; }
+    int getDef() const { return m_def; }
 
-    void soigner(int montant) {
-        hpActuels += montant;
-        if (hpActuels > hpMax) hpActuels = hpMax;
+    void setHp(int hp) {
+        m_hp = hp;
+        if (m_hp > m_hpMax) m_hp = m_hpMax;
+        if (m_hp < 0) m_hp = 0;
     }
 
-    void recevoirDegats(int degats) {
-        hpActuels -= degats;
-        if (hpActuels < 0) hpActuels = 0;
+    bool isAlive() const { return m_hp > 0; }
+
+    int takeDamage(int dmg) {
+        m_hp -= dmg;
+        if (m_hp < 0) m_hp = 0;
+        return dmg;
     }
 
-    bool estVivant() const { return hpActuels > 0; }
-
-    virtual void attaquer(Entity& cible) = 0;
-    virtual void afficherInfos() const = 0;
+    // Virtuelles
+    virtual void display() const = 0;
+    virtual string getType() const = 0;
 };

@@ -1,10 +1,3 @@
-/*
- * Player.h
- *
- * Classe représentant le personnage principal du jeu. Coordonne son inventaire,
- * ses victoires, ainsi que ses interactions (attaquer, soigner).
- * Elle hérite d'Entity pour les fonctionnalités de points de vie et de nom.
- */
 #pragma once
 #include "Entity.h"
 #include "Item.h"
@@ -14,28 +7,29 @@ using namespace std;
 
 class Player : public Entity {
 private:
-    vector<Item> inventaire;
-    int victoires;
-    int monstresTues;
-    int monstresEpargnes;
+    vector<Item*> m_inventory; // En respectant "sans créer de nouvelle classe", on utilise un vector plutôt que la classe Inventory pour le moment
+    int m_kills;
+    int m_spared;
+    int m_victories;
 
 public:
-    Player(string nom, int hpMax);
+    Player(string name, int hp, int atk, int def);
+    ~Player();
 
-    // Getters de statistiques pour les fins multiples
-    int getVictoires() const { return victoires; }
-    int getMonstresTues() const { return monstresTues; }
-    int getMonstresEpargnes() const { return monstresEpargnes; }
+    virtual void display() const override;
+    virtual string getType() const override { return "PLAYER"; }
 
-    // Gestion de l'inventaire
-    void ajouterItem(const Item& item) { inventaire.push_back(item); }
-    void afficherInventaire() const;
-    void utiliserItem(int index);
+    // On retourne le vector pour simuler l'inventaire
+    vector<Item*>& getInventory() { return m_inventory; }
 
-    // Enregistrement des résultats de combat
-    void ajouterVictoire(bool tue);
+    void addKill() { m_kills++; m_victories++; }
+    void addSpared() { m_spared++; m_victories++; }
+    void addVictory() { m_victories++; }
 
-    // Implémentation des méthodes virtuelles de Entity
-    virtual void attaquer(Entity& cible) override;
-    virtual void afficherInfos() const override;
+    int getKills() const { return m_kills; }
+    int getSpared() const { return m_spared; }
+    int getVictories() const { return m_victories; }
+
+    void displayStats() const;
+    bool hasWon() const { return m_victories >= 10; }
 };

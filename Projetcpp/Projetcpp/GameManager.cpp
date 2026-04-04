@@ -1,9 +1,3 @@
-/*
- * GameManager.cpp
- *
- * Implémentation de la lecture des fichiers CSV et de la boucle de jeu.
- * Le parseur utilise un système simple basé sur ';' comme séparateur.
- */
 #include "GameManager.h"
 #include <iostream>
 #include <fstream>
@@ -12,11 +6,10 @@
 
 using namespace std;
 
-GameManager::GameManager() : joueur(nullptr), jeuEnCours(true) {}
+GameManager::GameManager() : m_player(nullptr), jeuEnCours(true) {}
 
 GameManager::~GameManager() {
-    delete joueur;
-    for (auto m : monstresDisponibles) delete m;
+    delete m_player;
 }
 
 void GameManager::demarrer() {
@@ -25,27 +18,24 @@ void GameManager::demarrer() {
     cout << "Entrez le nom de votre personnage : ";
     cin >> nomJoueur;
 
-    joueur = new Player(nomJoueur, 50); // 50 HP par défaut
+    m_player = new Player(nomJoueur, 50, 10, 5); // 50 HP, 10 ATK, 5 DEF
 
-    // Chargement des données CSV depuis le dossier courant ou csv/
     chargerItems("csv/items.csv");
     chargerMonstres("csv/monsters.csv");
 
     cout << "\nChargement termine. Bonne chance, " << nomJoueur << " !" << endl;
-    menuPrincipal();
+    showMainMenu();
 }
 
 void GameManager::chargerItems(string chemin) {
     ifstream fichier(chemin);
     if (!fichier.is_open()) {
-        cerr << "Erreur : Impossible d'ouvrir " << chemin << endl;
-        // On essaie dans le repertoire courant
         fichier.open("items.csv");
         if(!fichier.is_open()) return;
     }
 
     string ligne, entete;
-    getline(fichier, entete); // Sauter la ligne de titre
+    getline(fichier, entete); 
 
     while (getline(fichier, ligne)) {
         stringstream ss(ligne);
@@ -57,8 +47,8 @@ void GameManager::chargerItems(string chemin) {
         getline(ss, qteS, ';');
 
         if (!nom.empty()) {
-            Item it(nom, type, stoi(valS), stoi(qteS));
-            joueur->ajouterItem(it);
+            Item* it = new Item(nom, type, stoi(valS), stoi(qteS));
+            m_player->getInventory().push_back(it);
         }
     }
     fichier.close();
@@ -91,27 +81,27 @@ void GameManager::chargerMonstres(string chemin) {
 
         if (nom.empty()) continue;
 
-        Monster* m = nullptr;
-        if (cat == "NORMAL")   m = new NormalMonster(nom, stoi(hp), stoi(atk), stoi(def), stoi(mGoal));
-        else if (cat == "MINIBOSS") m = new MiniBossMonster(nom, stoi(hp), stoi(atk), stoi(def), stoi(mGoal));
-        else if (cat == "BOSS")     m = new BossMonster(nom, stoi(hp), stoi(atk), stoi(def), stoi(mGoal));
+        MonsterCategory mc = MonsterCategory::NORMAL;
+        if (cat == "MINIBOSS") mc = MonsterCategory::MINIBOSS;
+        if (cat == "BOSS") mc = MonsterCategory::BOSS;
 
-        if (m) {
-            if (!a1.empty()) m->ajouterIdAction(stoi(a1));
-            if (!a2.empty()) m->ajouterIdAction(stoi(a2));
-            if (!a3.empty()) m->ajouterIdAction(stoi(a3));
-            if (!a4.empty()) m->ajouterIdAction(stoi(a4));
-            monstresDisponibles.push_back(m);
-        }
+        vector<string> acts;
+        if (!a1.empty() && a1 != " ") acts.push_back(a1);
+        if (!a2.empty() && a2 != " ") acts.push_back(a2);
+        if (!a3.empty() && a3 != " ") acts.push_back(a3);
+        if (!a4.empty() && a4 != " ") acts.push_back(a4);
+
+        Monster m(nom, mc, stoi(hp), stoi(atk), stoi(def), stoi(mGoal), acts);
+        m_monsterPool.push_back(m);
     }
     fichier.close();
 }
 
-void GameManager::menuPrincipal() {
+void GameManager::showMainMenu() {
     while (jeuEnCours) {
         cout << "\n=== MENU PRINCIPAL ===" << endl;
         cout << "1. Demarrer un combat" << endl;
-        cout << "2. Voir l'inventaire et les objets" << endl;
+        cout << "2. Voir l'inventaire" << endl;
         cout << "3. Voir le bestiaire" << endl;
         cout << "4. Voir mes statistiques" << endl;
         cout << "5. Quitter" << endl;
@@ -122,13 +112,19 @@ void GameManager::menuPrincipal() {
 
         switch (choix) {
             case 1: cout << "[Simulation] Lancement combat..." << endl; break;
-            case 2: joueur->afficherInventaire(); break;
-            case 3: bestiaire.afficher(); break;
-            case 4: joueur->afficherInfos(); break;
+            case 2: 
+                // Simulation affichage en l'absence de vraie classe Inventory
+                if(m_player->getInventory().empty()) cout << "  Inventaire vide.\n";
+                else {
+                    for(auto* it : m_player->getInventory()) it->display();
+                }
+                break;
+            case 3: m_bestiary.display(); break;
+            case 4: m_player->displayStats(); break;
             case 5: jeuEnCours = false; break;
             default: cout << "Choix invalide." << endl;
         }
         
-        if (choix == 1) break; // Sort pour lancer un eventuel combat (A coder)
+        if (choix == 1) break;
     }
 }

@@ -1,11 +1,3 @@
-/*
- * GameManager.h
- *
- * Classe "cerveau" du projet qui coordonne le démarrage, le chargement
- * des fichiers (CSV) et l'affichage du menu principal. Elle assure la
- * transition entre les phases d'exploration (Bestiaire, Inventaire) et
- * les phases de combat. C'est ici que l'on vérifie la fin de la partie.
- */
 #pragma once
 #include "Player.h"
 #include "Monster.h"
@@ -18,23 +10,19 @@ using namespace std;
 
 class GameManager {
 private:
-    Player* joueur;
-    vector<Monster*> monstresDisponibles; // Catalogue des monstres du CSV
-    Bestiary bestiaire;
+    Player* m_player;
+    Bestiary m_bestiary;
+    vector<Monster> m_monsterPool;
     bool jeuEnCours;
 
 public:
     GameManager();
     ~GameManager();
 
-    // Initialisation
     void demarrer();
     void chargerItems(string chemin);
     void chargerMonstres(string chemin);
 
-    // Boucle de jeu
-    void menuPrincipal();
+    void showMainMenu();
     void lancerCombat();
-    void afficherStatistiques();
-    void verifierFinPartie();
 };
