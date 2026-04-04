@@ -1,8 +1,8 @@
 # Projet : Programmation Orientée Objet en C++ - ALTERDUNE
 
-**Auteur :** Daniel Wladdimiro  
+**Auteur :** Louis Le Forestier et Maxime Laurent 
 **Institution :** ESILV  
-**Contact :** daniel.wladdimiro@devinci.fr  
+**Contact :** louis.le-forestier@edu.devinci.fr | maxime.laurent@edu.devinci.fr  
 **Période :** Second semestre 2025-2026  
 
 ---
