@@ -8,8 +8,8 @@
 ---
 
 **ACCUEIL** 
-[**PROJET**](./dossiers%20md/PROJET.md)
-[**PLAN D'IMPLEMENTATION**](./dossiers%20md/IMPLEMENTATION_PLAN.md)
+- [**PROJET**](./dossiers%20md/Projet.md)
+- [**PLAN D'IMPLEMENTATION**](./dossiers%20md/implementation_plan.md)
 
 ---
 
