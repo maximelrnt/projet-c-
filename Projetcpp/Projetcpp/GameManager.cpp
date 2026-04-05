@@ -5,19 +5,13 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include <cstdlib>
+#include <windows.h>
+
+#include "ActCatalogue.h"
+#include "FileLoader.h"
+#include "SaveManager.h"
 
 using namespace std;
-
-// ---------------------------------------------------------------
-//  Fonction utilitaire : supprime les espaces en debut et fin de chaine
-// ---------------------------------------------------------------
-static string trim(const string& s) {
-    int start = (int)s.find_first_not_of(" \t\r\n");
-    if (start == (int)string::npos) return "";
-    int end = (int)s.find_last_not_of(" \t\r\n");
-    return s.substr(start, end - start + 1);
-}
 
 // ---------------------------------------------------------------
 //  Constructeur / Destructeur
@@ -66,130 +60,35 @@ void GameManager::demarrer() {
 
     m_player = new Player(nomJoueur, 100, 20, 10);
 
-    chargerItems("csv/items.csv");
-    chargerMonstres("csv/monsters.csv");
+    ActCatalogue::init();
 
-    // Affichage initial demande par l'enonce
-    cout << "\n--- Bienvenue, " << nomJoueur << " ! ---" << endl;
+    cout << "\n  Voulez-vous charger la sauvegarde existante (Data/Save/save1.sav) ? (o/n) : ";
+    char choixLoad;
+    cin >> choixLoad;
+
+    if (choixLoad == 'o' || choixLoad == 'O') {
+        if (SaveManager::loadGame("Data/Save/save1.sav", *m_player, m_bestiary)) {
+            cout << "  Sauvegarde chargee avec succes !\n";
+            // On charge quand meme les monstres pour la pool de combat
+            m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
+            cout << "\n--- Heureux de vous revoir, " << m_player->getName() << " ! ---" << endl;
+        } else {
+            cout << "  Echec du chargement. Lancement d'une nouvelle partie...\n";
+            FileLoader::loadItems("csv/items.csv", *m_player);
+            m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
+            cout << "\n--- Bienvenue, " << nomJoueur << " ! ---" << endl;
+        }
+    } else {
+        FileLoader::loadItems("csv/items.csv", *m_player);
+        m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
+        cout << "\n--- Bienvenue, " << nomJoueur << " ! ---" << endl;
+    }
     m_player->display();
     cout << "  Inventaire de depart :" << endl;
-    for (auto* item : m_player->getInventory()) {
-        item->display();
-    }
+    m_player->getInventory().display();
     cout << "\nObjectif : vaincre 10 ennemis. Bonne chance !" << endl;
 
     showMainMenu();
-}
-
-// ---------------------------------------------------------------
-//  Chargement du CSV des items : nom; type; valeur; quantite
-// ---------------------------------------------------------------
-void GameManager::chargerItems(string chemin) {
-    ifstream fichier(chemin);
-    if (!fichier.is_open()) {
-        // Fallback si le chemin relatif ne marche pas
-        fichier.open("items.csv");
-        if (!fichier.is_open()) {
-            cout << "[Erreur] Impossible d'ouvrir items.csv" << endl;
-            return;
-        }
-    }
-
-    string ligne, entete;
-    getline(fichier, entete);  // On saute la ligne d'en-tete
-
-    while (getline(fichier, ligne)) {
-        if (ligne.empty()) continue;
-
-        stringstream ss(ligne);
-        string nom, type, valS, qteS;
-
-        getline(ss, nom,  ';');
-        getline(ss, type, ';');
-        getline(ss, valS, ';');
-        getline(ss, qteS, ';');
-
-        // On nettoie les espaces autour des valeurs
-        nom  = trim(nom);
-        type = trim(type);
-        valS = trim(valS);
-        qteS = trim(qteS);
-
-        if (nom.empty() || valS.empty() || qteS.empty()) continue;
-
-        if (type == "HEAL") {
-            HealItem* it = new HealItem(nom, stoi(valS), stoi(qteS));
-            m_player->getInventory().push_back(it);
-        }
-        // D'autres types pourront etre ajoutes ici plus tard
-    }
-
-    fichier.close();
-}
-
-// ---------------------------------------------------------------
-//  Chargement du CSV des monstres
-//  Format : categorie; nom; hp; atk; def; mercyGoal; act1; act2; [act3]; [act4]
-// ---------------------------------------------------------------
-void GameManager::chargerMonstres(string chemin) {
-    ifstream fichier(chemin);
-    if (!fichier.is_open()) {
-        fichier.open("monsters.csv");
-        if (!fichier.is_open()) {
-            cout << "[Erreur] Impossible d'ouvrir monsters.csv" << endl;
-            return;
-        }
-    }
-
-    string ligne, entete;
-    getline(fichier, entete);
-
-    while (getline(fichier, ligne)) {
-        if (ligne.empty()) continue;
-
-        stringstream ss(ligne);
-        string cat, nom, hp, atk, def, mGoal, a1, a2, a3, a4;
-
-        getline(ss, cat,   ';');
-        getline(ss, nom,   ';');
-        getline(ss, hp,    ';');
-        getline(ss, atk,   ';');
-        getline(ss, def,   ';');
-        getline(ss, mGoal, ';');
-        getline(ss, a1,    ';');
-        getline(ss, a2,    ';');
-        getline(ss, a3,    ';');
-        getline(ss, a4,    ';');
-
-        // Nettoyage des espaces
-        cat   = trim(cat);
-        nom   = trim(nom);
-        hp    = trim(hp);
-        atk   = trim(atk);
-        def   = trim(def);
-        mGoal = trim(mGoal);
-        a1    = trim(a1);
-        a2    = trim(a2);
-        a3    = trim(a3);
-        a4    = trim(a4);
-
-        if (nom.empty() || hp.empty()) continue;
-
-        MonsterCategory mc = MonsterCategory::NORMAL;
-        if (cat == "MINIBOSS") mc = MonsterCategory::MINIBOSS;
-        if (cat == "BOSS")     mc = MonsterCategory::BOSS;
-
-        vector<string> acts;
-        if (!a1.empty()) acts.push_back(a1);
-        if (!a2.empty()) acts.push_back(a2);
-        if (!a3.empty()) acts.push_back(a3);
-        if (!a4.empty()) acts.push_back(a4);
-
-        Monster m(nom, mc, stoi(hp), stoi(atk), stoi(def), stoi(mGoal), acts);
-        m_monsterPool.push_back(m);
-    }
-
-    fichier.close();
 }
 
 // ---------------------------------------------------------------
@@ -206,7 +105,8 @@ void GameManager::showMainMenu() {
         cout << "  2. Voir l'inventaire" << endl;
         cout << "  3. Voir le bestiaire" << endl;
         cout << "  4. Voir mes statistiques" << endl;
-        cout << "  5. Quitter" << endl;
+        cout << "  5. Sauvegarder la partie" << endl;
+        cout << "  6. Quitter" << endl;
         cout << "Choix : ";
 
         int choix;
@@ -219,16 +119,14 @@ void GameManager::showMainMenu() {
 
             break;
         case 2:
-            if (m_player->getInventory().empty()) {
+            if (m_player->getInventory().isEmpty()) {
                 cout << "  Inventaire vide." << endl;
             } else {
                 cout << "\n--- INVENTAIRE ---" << endl;
-                for (auto* item : m_player->getInventory()) {
-                    item->display();
-                }
+                m_player->getInventory().display();
             }
             cout << "\n(Appuyez sur Enter pour continuer)";
-            cin.ignore(); cin.get(); // Petite pause lecture
+            cin.ignore(); cin.get(); 
             break;
         case 3:
             m_bestiary.display();
@@ -241,6 +139,15 @@ void GameManager::showMainMenu() {
             cin.ignore(); cin.get();
             break;
         case 5:
+            if (SaveManager::saveGame("Data/Save/save1.sav", *m_player, m_bestiary)) {
+                cout << "  Partie sauvegardee dans Data/Save/save1.sav !" << endl;
+            } else {
+                cout << "  Erreur lors de la sauvegarde." << endl;
+            }
+            cout << "\n(Appuyez sur Enter pour continuer)";
+            cin.ignore(); cin.get();
+            break;
+        case 6:
             jeuEnCours = false;
             break;
         default:
@@ -267,6 +174,7 @@ void GameManager::showMainMenu() {
 void GameManager::lancerCombat() {
     if (m_monsterPool.empty()) {
         cout << "  Aucun monstre disponible !" << endl;
+        Sleep(2000);
         return;
     }
 

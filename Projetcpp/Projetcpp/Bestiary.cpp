@@ -14,6 +14,10 @@ void Bestiary::addEntry(const Monster& m, bool killed) {
     m_entries.push_back(BestiaryEntry(m, killed));
 }
 
+void Bestiary::addRawEntry(string name, string cat, int hp, int atk, int def, bool killed) {
+    m_entries.push_back(BestiaryEntry(name, cat, hp, atk, def, killed));
+}
+
 void Bestiary::display() const {
     if (m_entries.empty()) {
         cout << "  Aucun monstre rencontre pour l'instant." << endl;

@@ -16,7 +16,7 @@ public:
         : m_name(name), m_hp(hp), m_hpMax(hp), m_atk(atk), m_def(def) {}
     virtual ~Entity() {}
 
-    // Accesseurs
+    // setter et getter
     string getName() const { return m_name; }
     int getHp() const { return m_hp; }
     int getHpMax() const { return m_hpMax; }
@@ -39,5 +39,5 @@ public:
 
     // Virtuelles
     virtual void display() const = 0;
-    virtual string getType() const = 0;
+    virtual string getType() const = 0;     
 };

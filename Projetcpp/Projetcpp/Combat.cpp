@@ -1,5 +1,6 @@
 #include "Combat.h"
 #include "HealItem.h"
+#include "ActCatalogue.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -149,23 +150,12 @@ bool Combat::tourJoueur() {
 
     case 2: {  // ACT
         const vector<string>& actIds = m_monster.getActIds();
-        vector<ActAction> catalogue = ActAction::getCatalogue();
-
+        
         vector<ActAction> dispo;
-        for (int i = 0; i < (int)actIds.size(); i++)
-            for (int j = 0; j < (int)catalogue.size(); j++)
-                if (catalogue[j].getId() == actIds[i]) {
-                    dispo.push_back(catalogue[j]);
-                    break;
-                }
+        ActCatalogue::displayAvailable(actIds, dispo);
 
-        if (dispo.empty()) { cout << "  Aucune action disponible." << endl; break; }
+        if (dispo.empty()) break;
 
-        cout << "\n" << COL_CYAN << "  Actions disponibles :" << COL_RESET << endl;
-        for (int i = 0; i < (int)dispo.size(); i++) {
-            cout << "  [" << (i + 1) << "] ";
-            dispo[i].display();
-        }
         cout << "  [0] Annuler\n  Choix : ";
         int c; cin >> c;
         if (c == 0 || c < 1 || c > (int)dispo.size()) break;
@@ -182,28 +172,26 @@ bool Combat::tourJoueur() {
     }
 
     case 3: {  // ITEM
-        vector<Item*>& inv = m_player.getInventory();
-        if (inv.empty()) { cout << "  Sac vide !" << endl; break; }
+        Inventory& inv = m_player.getInventory();
+        if (inv.isEmpty()) { cout << "  Sac vide !" << endl; break; }
 
         cout << "\n  Inventaire :" << endl;
-        bool auMoinsUn = false;
-        for (int i = 0; i < (int)inv.size(); i++)
-            if (inv[i]->getQuantity() > 0) {
-                cout << "  [" << (i + 1) << "] ";
-                inv[i]->display();
-                auMoinsUn = true;
-            }
-
-        if (!auMoinsUn) { cout << "  Tous les objets sont epuises !" << endl; break; }
+        if (!inv.hasUsableItems()) {
+            cout << "  Tous les objets sont epuises !" << endl;
+            break;
+        }
+        
+        inv.display();
 
         cout << "  [0] Annuler\n  Choix : ";
         int c; cin >> c;
-        if (c == 0 || c < 1 || c > (int)inv.size()) break;
+        if (c == 0 || c < 1 || c > inv.size()) break;
 
-        if (inv[c - 1]->use())
-            inv[c - 1]->applyEffect(m_player);
-        else
+        if (inv.useItem(c - 1, m_player)) {
+            cout << "  Effet applique !" << endl;
+        } else {
             cout << "  Objet epuise !" << endl;
+        }
         Sleep(1500);
         break;
     }

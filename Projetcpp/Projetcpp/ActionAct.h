@@ -20,6 +20,4 @@ public:
 
     void display() const;
 
-    // Cette fonction simule l'ActCatalogue en attendant sa vraie création
-    static vector<ActAction> getCatalogue();
 };

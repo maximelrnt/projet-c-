@@ -4,7 +4,7 @@
 > Auteur du sujet : Daniel Wladdimiro  
 > Binôme : Louis Le Forestier & Maxime  
 > Soutenance mini-suivi : **08/04** | Soutenance P1 : **29/04** | P2 : **06/05**  
-> **Dernière mise à jour : 04/04/2026**
+> **Dernière mise à jour : 05/04/2026**
 
 ---
 
@@ -46,22 +46,22 @@ Projetcpp/
 ├── Entity.h                  ✅ Fait
 ├── Player.h / .cpp           ✅ Fait (inventaire inline dans Player)
 ├── Monster.h / .cpp          ✅ Fait
-├── Item.h / .cpp             ✅ Fait (abstraite)
+├── Item.h / .cpp             ✅ Fait (abstraite, effet propre)
 ├── ActionAct.h / .cpp        ✅ Fait (catalogue statique integre)
 ├── Bestiary.h / .cpp         ✅ Fait (BestiaryEntry = struct dans Bestiary.h)
 ├── GameManager.h / .cpp      ✅ Fait (combat et fins integres)
 │
 ├── HealItem.h / .cpp         ✅ Fait (polymorphisme Item)
-├── Combat.h / .cpp           ✅ Fait (coeur du gameplay)
+├── Combat.h / .cpp           ✅ Fait (coeur du gameplay et affichage victoire)
 │
-├── Inventory.h / .cpp        ❌ Optionnel (refactoring)
-├── ActCatalogue.h / .cpp     ❌ Optionnel (refactoring)
-├── FileLoader.h / .cpp       ❌ Optionnel (refactoring)
-├── SaveManager.h / .cpp      ❌ Bonus
+├── Inventory.h / .cpp        ✅ Fait (refactoring applique)
+├── ActCatalogue.h / .cpp     ✅ Fait (refactoring applique)
+├── FileLoader.h / .cpp       ✅ Fait (refactoring applique)
+├── SaveManager.h / .cpp      ✅ Fait (bonus rempli)
 │
 └── csv/
-    ├── items.csv             ✅ Fait (3 objets de soin)
-    └── monsters.csv          ✅ Fait (IDs d'action texte)
+    ├── items.csv             ✅ Fait (objets de soin)
+    └── monsters.csv          ✅ Fait (IDs d'action textes corriges)
 ```
 
 ### 2b. Architecture IDÉALE (si refactoring complet)
@@ -211,7 +211,7 @@ enum class MonsterCategory { NORMAL, MINIBOSS, BOSS };
 
 ---
 
-### 3.6 `Inventory` (Inventory/Inventory.h + Inventory.cpp)
+### 3.6 `Inventory` (Inventory/Inventory.h + Inventory.cpp) - ✅ FAIT
 
 **Rôle :** Composition dans Player. Gère la liste d'items.
 
@@ -248,7 +248,7 @@ enum class MonsterCategory { NORMAL, MINIBOSS, BOSS };
 
 ---
 
-### 3.8 `ActCatalogue` (Act/ActCatalogue.h + ActCatalogue.cpp)
+### 3.8 `ActCatalogue` (Act/ActCatalogue.h + ActCatalogue.cpp) - ✅ FAIT
 
 **Rôle :** Catalogue global de toutes les actions ACT (≥ 8, dont ≥ 2 négatives).
 
@@ -345,7 +345,7 @@ CombatResult getResult() const;
 
 ---
 
-### 3.12 `FileLoader` (Utils/FileLoader.h + FileLoader.cpp)
+### 3.12 `FileLoader` (Utils/FileLoader.h + FileLoader.cpp) - ✅ FAIT
 
 **Rôle :** Lecture des fichiers CSV.
 
@@ -360,7 +360,7 @@ static std::vector<Monster> loadMonsters(const std::string& filepath);
 
 ---
 
-### 3.12b 🆕 `SaveManager` (Utils/SaveManager.h + SaveManager.cpp)
+### 3.12b 🆕 `SaveManager` (Utils/SaveManager.h + SaveManager.cpp) - ✅ FAIT
 
 **Rôle :** Gère la sérialisation et désérialisation de l'état complet du jeu dans des fichiers `.sav`. Classe **utilitaire statique** (pas d'instance).
 
@@ -605,7 +605,7 @@ int m_roundResult; // pour les fins multiples
 │            slot) : bool      │
 │ + saveExists(slot) : bool    │
 │ + displaySaveSlots()         │
-│ + getSlotPath(slot) : string │
+│ + getSlotPath() : string     │
 └──────────────────────────────┘
 
 ┌──────────────────────────────┐
@@ -695,7 +695,7 @@ BOSS; OmbreDesert; 180; 45; 12; 100; ENCOURAGER; MIMER; PLEURER; PROVOQUER
   ├─▶ [5] 🆕 Sauvegarder
   │     └─▶ Affiche les 3 slots (état + nom joueur si rempli)
   │     └─▶ Joueur choisit 1, 2 ou 3
-  │     └─▶ SaveManager::saveGame() → écrit Data/saves/slotX.sav
+  │     └─▶ SaveManager::saveGame() → écrit Data/Save/save1.sav
   │     └─▶ Confirmation : "Partie sauvegardée dans le slot X !"
   └─▶ [6] Quitter ◀──────────────────────────┘
 
@@ -709,9 +709,9 @@ BOSS; OmbreDesert; 180; 45; 12; 100; ENCOURAGER; MIMER; PLEURER; PROVOQUER
 ```
 [LANCEMENT]
   └─▶ Charge items.csv + monsters.csv + ActCatalogue::init()
-  └─▶ Vérifie si au moins 1 slot de sauvegarde existe (SaveManager::saveExists)
+  └─▶ Vérifie si Data/Save/save1.sav existe
   ├─▶ Si oui → "Une sauvegarde existe. Continuer une partie ? [O/N]"
-  │     ├─▶ [O] → Affiche les slots disponibles → Joueur choisit → loadGame()
+  │     ├─▶ [O] → loadGame()
   │     └─▶ [N] → Nouvelle partie (saisie du nom)
   └─▶ Si non → Nouvelle partie directement (saisie du nom)
 ```
@@ -722,18 +722,18 @@ BOSS; OmbreDesert; 180; 45; 12; 100; ENCOURAGER; MIMER; PLEURER; PROVOQUER
 
 | Étape | Fichiers | Priorité |
 |---|---|---|
-| 1 | `ActAction.h/.cpp` + `ActCatalogue.h/.cpp` | 🔴 Premier |
-| 2 | `Entity.h/.cpp` | 🔴 Premier |
-| 3 | `Item.h/.cpp` + `HealItem.h/.cpp` | 🟠 Deuxième |
-| 4 | `Inventory.h/.cpp` | 🟠 Deuxième |
-| 5 | `Player.h/.cpp` | 🟠 Deuxième |
-| 6 | `Monster.h/.cpp` | 🟠 Deuxième |
-| 7 | `FileLoader.h/.cpp` + CSV | 🟡 Troisième |
-| 8 | `BestiaryEntry.h/.cpp` + `Bestiary.h/.cpp` | 🟡 Troisième |
-| 9 | `Combat.h/.cpp` | 🟢 Quatrième |
-| 10 | `Game.h/.cpp` | 🟢 Quatrième |
-| 11 | `SaveManager.h/.cpp` + dossier `Data/saves/` | 🔵 Bonus (après le jeu de base) |
-| 12 | `main.cpp` | ✅ Final |
+| 1 | `ActAction.h/.cpp` | ✅ Fait |
+| 2 | `Entity.h/.cpp` | ✅ Fait |
+| 3 | `Item.h/.cpp` + `HealItem.h/.cpp` | ✅ Fait |
+| 4 | `Inventory.h/.cpp` | ✅ Fait |
+| 5 | `Player.h/.cpp` | ✅ Fait |
+| 6 | `Monster.h/.cpp` | ✅ Fait |
+| 7 | `FileLoader.h/.cpp` + CSV | ✅ Fait |
+| 8 | `BestiaryEntry.h/.cpp` + `Bestiary.h/.cpp` | ✅ Fait |
+| 9 | `Combat.h/.cpp` | ✅ Fait |
+| 10 | `Game.h/.cpp` | ✅ Fait |
+| 11 | `SaveManager.h/.cpp` + dossier `Data/saves/` | ✅ Fait |
+| 12 | `main.cpp` | ✅ Fait |
 
 ---
 

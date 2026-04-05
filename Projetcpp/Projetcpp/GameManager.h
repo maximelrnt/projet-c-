@@ -26,9 +26,6 @@ public:
     ~GameManager();
 
     void demarrer();
-    void chargerItems(string chemin);
-    void chargerMonstres(string chemin);
-
     void showMainMenu();
     void lancerCombat();
     void showEnding();

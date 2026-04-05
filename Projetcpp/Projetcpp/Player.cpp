@@ -7,9 +7,7 @@ Player::Player(string name, int hp, int atk, int def)
     : Entity(name, hp, atk, def), m_kills(0), m_spared(0), m_victories(0) {}
 
 Player::~Player() {
-    for (auto item : m_inventory) {
-        delete item;
-    }
+    // La mémoire des Item* est maintenant libérée automatiquement par le destructeur de m_inventory
 }
 
 void Player::display() const {

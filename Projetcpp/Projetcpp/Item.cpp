@@ -4,6 +4,6 @@
 using namespace std;
 
 void Item::display() const {
-    cout << "  - " << m_name << " [" << m_type << "] +" << m_value 
-         << " HP | Quantite : " << m_quantity << endl;
+    cout << "  - " << this->m_name << " [" << this->m_type << "] +" << this->m_value
+        << " HP | Quantite : " << this->m_quantity << endl;
 }
