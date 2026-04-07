@@ -5,7 +5,12 @@
 #include <fstream>
 #include <cstdlib>
 #include <vector>
-#include <windows.h>   // Sleep()
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#define Sleep(x) usleep((x)*1000)
+#endif
 
 using namespace std;
 
@@ -86,7 +91,11 @@ void Combat::run() {
     afficherMonstreApparition();
 
     while (m_player.isAlive() && m_monster.isAlive()) {
-        system("cls"); // On nettoie l'ecran pour le nouveau tour
+#ifdef _WIN32
+        system("cls");
+#else
+        system("clear");
+#endif
         afficherStatut();
 
         bool continuer = tourJoueur();
@@ -256,7 +265,11 @@ void Combat::afficherSeparateur() const {
 //  Affiche un cadre de victoire stylise
 // ---------------------------------------------------------------
 void Combat::afficherVictoire() const {
-    system("cls"); // On vide l'ecran pour la victoire
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
 
     string couleur = getCouleurMonstre();
 

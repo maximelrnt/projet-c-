@@ -5,7 +5,12 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <unistd.h>
+#define Sleep(x) usleep((x)*1000)
+#endif
 
 #include "ActCatalogue.h"
 #include "FileLoader.h"
@@ -96,7 +101,11 @@ void GameManager::demarrer() {
 // ---------------------------------------------------------------
 void GameManager::showMainMenu() {
     while (jeuEnCours && m_player->isAlive() && !m_player->hasWon()) {
-        system("cls"); // On nettoie le menu pour que ce soit propre
+#ifdef _WIN32
+        system("cls");
+#else
+        system("clear");
+#endif
         cout << "\n===============================" << endl;
         cout << "       MENU PRINCIPAL          " << endl;
         cout << "  Victoires : " << m_player->getVictories() << " / 10" << endl;
@@ -114,7 +123,11 @@ void GameManager::showMainMenu() {
 
         switch (choix) {
         case 1:
+#ifdef _WIN32
             system("cls");
+#else
+            system("clear");
+#endif
             lancerCombat();
 
             break;
@@ -204,6 +217,12 @@ void GameManager::lancerCombat() {
         m_player->addSpared();
         m_bestiary.addEntry(monstre, false);
         cout << "Victoires : " << m_player->getVictories() << "/10" << endl;
+    }
+
+    if (resultat != CombatResult::PLAYER_DEAD) {
+        cout << "\n(Appuyez sur Enter pour continuer)";
+        cin.ignore(10000, '\n');
+        cin.get();
     }
 }
 
