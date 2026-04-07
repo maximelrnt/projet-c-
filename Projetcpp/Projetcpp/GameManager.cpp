@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <random>
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -192,7 +193,10 @@ void GameManager::lancerCombat() {
     }
 
     // On tire un monstre au hasard et on en fait une copie fraiche
-    int index = rand() % (int)m_monsterPool.size();
+    static std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<int> uni(0, m_monsterPool.size() - 1);
+    int index = uni(rng);
+    
     Monster monstre = m_monsterPool[index].clone();
 
     // Lancement du combat

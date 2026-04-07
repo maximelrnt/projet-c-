@@ -148,6 +148,18 @@ bool Combat::tourJoueur() {
         m_monster.takeDamage(dmg);
         cout << COL_GREEN << "  Vous attaquez " << m_monster.getName()
              << " : -" << dmg << " HP !" << COL_RESET << endl;
+             
+        int oldMercy = m_monster.getMercy();
+        if (oldMercy > 0) {
+            // Malus en fonction des degats et de la taille de la jauge actuelle
+            int penalty = dmg + (oldMercy / 5);
+            m_monster.addMercy(-penalty);
+            int drop = oldMercy - m_monster.getMercy();
+            if (drop > 0) {
+                cout << COL_YELLOW << "  Le monstre perd confiance... Mercy -" << drop << COL_RESET << endl;
+            }
+        }
+
         if (!m_monster.isAlive()) {
             cout << COL_GREEN << "  " << m_monster.getName() << " s'effondre !" << COL_RESET << endl;
             m_result = CombatResult::MONSTER_KILLED;
