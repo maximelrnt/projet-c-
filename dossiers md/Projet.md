@@ -785,7 +785,7 @@ BOSS; OmbreDesert; 180; 45; 12; 100; ENCOURAGER; MIMER; PLEURER; PROVOQUER
 ### Pour la soutenance (must-have avant 08/04)
 - ✅ Créer `HealItem.h/.cpp` (polymorphisme)
 - ✅ Corriger `monsters.csv` (IDs texte)
-- ❌ **UML** dessiné (papier ou draw.io, conforme à la section 4)
+- ✅ **UML** dessiné (voir rendu1.md, format mermaid / UML intégré)
 - ✅ Démo : combat complet + navigation menu + fin de jeu
 
 ---

@@ -208,6 +208,6 @@ Bonus : Jusqu'a +4 points pour SaveManager + qualite generale.
 - [x] `main.cpp` — point d'entree fonctionnel
 - [x] `HealItem.h/.cpp` — sous-classe concrete
 - [x] **Combat** implémenté et branché
-- [ ] **UML** dessine (conforme a Projet.md, section 4. À faire sur draw.io ou papier)
+- [x] **UML** dessiné (intégré dans rendu1.md mis en forme)
 - [x] Affichage propre ANSI/system cls
 

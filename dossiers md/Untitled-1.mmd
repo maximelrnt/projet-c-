@@ -1,0 +1,122 @@
+---
+config:
+  look: classic
+  theme: mc
+  layout: elk
+id: dfe44b9a-1429-4be6-99b8-546467b6d15e
+---
+classDiagram
+direction TB
+    class GameManager {
+	    -m_player : Player
+	    -m_bestiary : Bestiary
+	    -m_monsterPool: vector~Monster~
+	    +init() void
+	    +run() void
+	    +showMainMenu() void
+	    +startCombat() void
+    }
+
+    class Entity {
+	    -m_name : string
+	    -m_hp : int
+	    -m_hpMax : int
+	    -m_atk : int
+	    -m_def : int
+	    +getName() string
+	    +getHp() int
+	    +getHpMax() int
+	    +isAlive() bool
+	    +takeDamage(dmg: int) int
+	    +display() void*
+	    +getType() string*
+    }
+
+    class Player {
+	    -m_inventory : Inventory
+	    -m_kills : int
+	    -m_spared : int
+	    -m_victories : int
+	    +display() void
+	    +getType() string
+	    +getInventory() Inventory&
+	    +addKill() void
+	    +addSpared() void
+	    +addVictory() void
+	    +hasWon() bool
+    }
+
+    class Combat {
+	    -m_player : Player&
+	    -m_monster : Monster
+	    +run() void
+	    +playerTurn() bool
+	    +monsterTurn() bool
+    }
+
+    class Bestiary {
+	    -m_entries : vector~BestiaryEntry~
+	    +addEntry(m: Monster, killed: bool)
+	    +display()
+    }
+
+    class Monster {
+	    -m_category : MonsterCategory
+	    -m_mercy : int
+	    -m_mercyGoal : int
+	    -m_actIds : vector~string~
+	    +display() void
+	    +getType() string
+	    +getCategory() MonsterCategory
+	    +addMercy() void
+	    +isMercyFull() bool
+	    +getActIds() vector~string~
+	    +clone() Monster
+    }
+
+    class Inventory {
+	    -m_items : vector~Item*~
+	    +~Inventory()
+	    +addItem() void
+	    +useItem() bool
+	    +display() void
+    }
+
+    class Item {
+	    -m_name : string
+	    -m_type : string
+	    -m_value : int
+	    -m_quantity : int
+	    +use() bool
+	    +applyEffect() void*
+	    +display() void
+    }
+
+    class SaveManager {
+	    +saveGame(p: Player, b: Bestiary, slot: int) bool
+	    +loadGame(p: Player, b: Bestiary, slot: int) bool
+    }
+
+    class FileLoader {
+	    +loadItems(filepath: string) vector~Item*~
+	    +loadMonsters(filepath: string) vector~Monster~
+    }
+
+    class HealItem {
+	    +applyEffect() void
+    }
+
+	<<abstract>> Entity
+	<<abstract>> Item
+
+    Entity <|-- Player
+    Entity <|-- Monster
+    Item <|-- HealItem
+    Player *-- Inventory
+    Inventory o-- Item
+    GameManager *-- Player
+    GameManager *-- Bestiary
+    Combat --> Player
+    Combat *-- Monster
+    GameManager ..> FileLoader
+    GameManager ..> SaveManager
