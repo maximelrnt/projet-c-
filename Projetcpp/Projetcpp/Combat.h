@@ -40,4 +40,10 @@ private:
 
     // Affichage de la victoire
     void afficherVictoire() const;
+
+    // === UI style Pokemon (ANSI only, aucune dependance) ===
+    std::string makeHpBar(int hp, int hpMax, int barLen = 20) const;
+    void afficherEcranCombat(const std::string& message = "") const;
+    void afficherApparitionPokemon() const;
+    std::vector<std::string> lireAsciiLines() const;
 };
