@@ -42,12 +42,12 @@ string Combat::getCouleurMonstre() const {
 // ---------------------------------------------------------------
 string Combat::getAsciiFilePath() const {
     string nom = m_monster.getName();
-    if (nom == "Slime Bleu")           return "Data/slime-bleu.txt";
-    if (nom == "Rat Geant")            return "Data/rat-geant.txt";
-    if (nom == "Chevalier Rouille")    return "Data/chevalier-rouille.txt";
-    if (nom == "Sorciere des Marais")  return "Data/sorciere-des-marais.txt";
-    if (nom == "Dragon Ancien")        return "Data/dragon-ancien.txt";
-    if (nom == "Lich Corrompue")       return "Data/lich-corrompue.txt";
+    if (nom == "Garfield")             return "Data/garfield.txt";
+    if (nom == "Bob l Eponge")         return "Data/bob-leponge.txt";
+    if (nom == "Homer Simpson")        return "Data/homer-simpson.txt";
+    if (nom == "Bugs Bunny")           return "Data/bugs-bunny.txt";
+    if (nom == "Shrek")                return "Data/shrek.txt";
+    if (nom == "Eric Cartman")         return "Data/eric-cartman.txt";
     return "";
 }
 
