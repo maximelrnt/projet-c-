@@ -74,7 +74,6 @@ void ActCatalogue::displayAvailable(const vector<string>& ids, vector<ActAction>
     }
 
     for (int i = 0; i < (int)outAvailable.size(); i++) {
-        cout << "  [" << (i + 1) << "] ";
-        outAvailable[i].display();
+        cout << "  [" << (i + 1) << "] " << outAvailable[i].getId() << "\n";
     }
 }
