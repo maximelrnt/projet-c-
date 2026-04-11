@@ -1,4 +1,5 @@
 nom; type; valeur; quantite
-Potion de soin; HEAL; 30; 3
-Grande Potion; HEAL; 60; 1
-Herbe medicale; HEAL; 15; 5
+Gros Coockie; HEAL; 30; 3
+Doliprane; HEAL; 60; 1
+Chocolatine; HEAL; -15; 5
+Donut; HEAL; 20; 5
