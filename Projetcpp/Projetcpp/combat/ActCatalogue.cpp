@@ -3,12 +3,14 @@
 
 using namespace std;
 
+// definition de la variable statique
 map<string, ActAction> ActCatalogue::s_actions;
 
+// on remplit le catalogue avec toutes les actions du jeu
 void ActCatalogue::init() {
     s_actions.clear();
 
-    // --- Actions generiques (gardees en reserve) ---
+    // --- actions generiques ---
     s_actions.insert({"FLATTER",    ActAction("FLATTER",    "Tu flattes le monstre avec eloquence.",       +20)});
     s_actions.insert({"CHANTER",    ActAction("CHANTER",    "Tu chantes une melodie apaisante.",           +25)});
     s_actions.insert({"DANSER",     ActAction("DANSER",     "Tu executes une danse bizarre.",               +15)});
@@ -51,28 +53,33 @@ void ActCatalogue::init() {
     s_actions.insert({"MANIPULER",   ActAction("MANIPULER",   "Tu tentes de le manipuler. Il voit clair dans ton jeu.", -10)});
 }
 
+// cherche une action par son ID dans la map
 const ActAction* ActCatalogue::getAction(const string& id) {
     auto it = s_actions.find(id);
     if (it != s_actions.end()) {
         return &(it->second);
     }
-    return nullptr;
+    return nullptr;  // pas trouve
 }
 
+// affiche les actions dispo pour un monstre et remplit le vector outAvailable
 void ActCatalogue::displayAvailable(const vector<string>& ids, vector<ActAction>& outAvailable) {
     outAvailable.clear();
-    for (const string& id : ids) {
-        const ActAction* act = getAction(id);
+
+    // on parcourt les ids et on recupere les actions correspondantes
+    for (int i = 0; i < (int)ids.size(); i++) {
+        const ActAction* act = getAction(ids[i]);
         if (act != nullptr) {
             outAvailable.push_back(*act);
         }
     }
-    
+
     if (outAvailable.empty()) {
         cout << "  Aucune action disponible." << endl;
         return;
     }
 
+    // on affiche la liste numerotee
     for (int i = 0; i < (int)outAvailable.size(); i++) {
         cout << "  [" << (i + 1) << "] " << outAvailable[i].getId() << "\n";
     }

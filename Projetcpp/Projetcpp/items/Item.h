@@ -3,38 +3,40 @@
 
 using namespace std;
 
-// Forward declaration pour eviter l'inclusion circulaire avec Player
-class Player;
+class Player;  // forward declaration pour eviter les inclusions circulaires
 
-/*
- * Item : Classe abstraite de base pour tous les objets de l'inventaire.
- * Elle definit les proprietes communes (nom, type, valeur, quantite) et
- * oblige les sous-classes a implementer applyEffect() pour definir leur effet.
- */
+// Item : classe abstraite pour les objets du jeu
+// chaque type d'objet (soin, etc) doit implementer applyEffect()
 class Item {
 protected:
     string m_name;
-    string m_type;
-    int m_value;
-    int m_quantity;
+    string m_type;     // le type d'objet genre "HEAL"
+    int m_value;       // la valeur de l'effet (hp soignes par ex)
+    int m_quantity;    // combien il en reste
 
 public:
+    // constructuer
     Item(string name, string type, int value, int quantity)
         : m_name(name), m_type(type), m_value(value), m_quantity(quantity) {}
+
     virtual ~Item() {}
 
+    // getters
     string getName() const { return m_name; }
     string getType() const { return m_type; }
     int getValue() const { return m_value; }
     int getQuantity() const { return m_quantity; }
 
+    // utilise un objet (diminue la quantite de 1)
     bool use() {
         if (m_quantity <= 0) return false;
         m_quantity--;
         return true;
     }
 
-    // Chaque sous-classe doit definir l'effet applique au joueur
+    // methode virtuelle pure : chaque sous-classe definit son effet
     virtual void applyEffect(Player& player) = 0;
+
+    // affichage de base
     virtual void display() const;
 };

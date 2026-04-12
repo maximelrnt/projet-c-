@@ -19,18 +19,14 @@
 
 using namespace std;
 
-// ---------------------------------------------------------------
-//  Constructeur / Destructeur
-// ---------------------------------------------------------------
+// constructuer et destructeur
 GameManager::GameManager() : m_player(nullptr), jeuEnCours(true) {}
 
 GameManager::~GameManager() {
-    delete m_player;
+    delete m_player;  // on libere le joueur
 }
 
-// ---------------------------------------------------------------
-//  Ecran titre avec couleurs ANSI
-// ---------------------------------------------------------------
+// affiche le titre du jeu en ASCII art avec des couleurs
 static void afficherTitre() {
     const char* GOLD  = "\033[1;33m";
     const char* CYAN  = "\033[1;36m";
@@ -54,9 +50,7 @@ static void afficherTitre() {
     cout << RESET << "\n";
 }
 
-// ---------------------------------------------------------------
-//  Demarrage du jeu : saisie du nom, chargement CSV, menu
-// ---------------------------------------------------------------
+// demarage du jeu : titre, saisie du nom, chargement csv
 void GameManager::demarrer() {
     afficherTitre();
 
@@ -64,10 +58,13 @@ void GameManager::demarrer() {
     cout << "  Entrez le nom de votre personnage : ";
     cin >> nomJoueur;
 
+    // on cree le joueur avec des stats de base
     m_player = new Player(nomJoueur, 100, 20, 10);
 
+    // on initialise le catalogue d'actions
     ActCatalogue::init();
 
+    // on propose de charger une sauvegard
     cout << "\n  Voulez-vous charger la sauvegarde existante (Data/Save/save1.sav) ? (o/n) : ";
     char choixLoad;
     cin >> choixLoad;
@@ -75,20 +72,24 @@ void GameManager::demarrer() {
     if (choixLoad == 'o' || choixLoad == 'O') {
         if (SaveManager::loadGame("Data/Save/save1.sav", *m_player, m_bestiary)) {
             cout << "  Sauvegarde chargee avec succes !\n";
-            // On charge quand meme les monstres pour la pool de combat
+            // on charge quand meme les monstres pour les combats
             m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
             cout << "\n--- Heureux de vous revoir, " << m_player->getName() << " ! ---" << endl;
-        } else {
+        }
+        else {
             cout << "  Echec du chargement. Lancement d'une nouvelle partie...\n";
             FileLoader::loadItems("csv/items.csv", *m_player);
             m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
             cout << "\n--- Bienvenue, " << nomJoueur << " ! ---" << endl;
         }
-    } else {
+    }
+    else {
         FileLoader::loadItems("csv/items.csv", *m_player);
         m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
         cout << "\n--- Bienvenue, " << nomJoueur << " ! ---" << endl;
     }
+
+    // on affiche le resumme de depart
     m_player->display();
     cout << "  Inventaire de depart :" << endl;
     m_player->getInventory().display();
@@ -97,9 +98,7 @@ void GameManager::demarrer() {
     showMainMenu();
 }
 
-// ---------------------------------------------------------------
-//  Menu principal : tourne jusqu'a la fin du jeu
-// ---------------------------------------------------------------
+// boucle du menu principal
 void GameManager::showMainMenu() {
     while (jeuEnCours && m_player->isAlive() && !m_player->hasWon()) {
 #ifdef _WIN32
@@ -130,49 +129,58 @@ void GameManager::showMainMenu() {
             system("clear");
 #endif
             lancerCombat();
-
             break;
+
         case 2:
             if (m_player->getInventory().isEmpty()) {
                 cout << "  Inventaire vide." << endl;
-            } else {
+            }
+            else {
                 cout << "\n--- INVENTAIRE ---" << endl;
                 m_player->getInventory().display();
             }
             cout << "\n(Appuyez sur Enter pour continuer)";
-            cin.ignore(); cin.get(); 
+            cin.ignore(); cin.get();
             break;
+
         case 3:
             m_bestiary.display();
             cout << "\n(Appuyez sur Enter pour continuer)";
             cin.ignore(); cin.get();
             break;
+
         case 4:
             m_player->displayStats();
             cout << "\n(Appuyez sur Enter pour continuer)";
             cin.ignore(); cin.get();
             break;
+
         case 5:
+            // sauvegarde
             if (SaveManager::saveGame("Data/Save/save1.sav", *m_player, m_bestiary)) {
                 cout << "  Partie sauvegardee dans Data/Save/save1.sav !" << endl;
-            } else {
+            }
+            else {
                 cout << "  Erreur lors de la sauvegarde." << endl;
             }
             cout << "\n(Appuyez sur Enter pour continuer)";
             cin.ignore(); cin.get();
             break;
+
         case 6:
             jeuEnCours = false;
             break;
+
         default:
             cout << "  Choix invalide." << endl;
         }
     }
 
-    // Verification de l'issue apres la boucle
+    // fin du jeu
     if (m_player->hasWon()) {
         showEnding();
-    } else if (!m_player->isAlive()) {
+    }
+    else if (!m_player->isAlive()) {
         cout << "\n===============================" << endl;
         cout << "         GAME OVER             " << endl;
         cout << "===============================" << endl;
@@ -182,9 +190,7 @@ void GameManager::showMainMenu() {
     }
 }
 
-// ---------------------------------------------------------------
-//  Lancer un combat aleatoire contre un monstre du pool
-// ---------------------------------------------------------------
+// lance un combat contre un monstre aleatoire
 void GameManager::lancerCombat() {
     if (m_monsterPool.empty()) {
         cout << "  Aucun monstre disponible !" << endl;
@@ -192,31 +198,33 @@ void GameManager::lancerCombat() {
         return;
     }
 
-    // On tire un monstre au hasard et on en fait une copie fraiche
+    // on tire un monstre au hasard
     static std::mt19937 rng(std::random_device{}());
     std::uniform_int_distribution<int> uni(0, m_monsterPool.size() - 1);
     int index = uni(rng);
-    
+
+    // on clone le monstre pour avoir une copie fraiche
     Monster monstre = m_monsterPool[index].clone();
 
-    // Lancement du combat
+    // on lance le combat
     Combat combat(*m_player, monstre);
     combat.run();
 
-    // On traite le resultat
+    // on traite le resultat
     CombatResult resultat = combat.getResult();
 
     cout << "\n-----------------------------" << endl;
     if (resultat == CombatResult::PLAYER_DEAD) {
-        // La boucle du menu s'arretera toute seule (isAlive() == false)
-
-    } else if (resultat == CombatResult::MONSTER_KILLED) {
+        // la boucle s'arretera toute seule car isAlive() sera false
+    }
+    else if (resultat == CombatResult::MONSTER_KILLED) {
         cout << "Victoire ! " << monstre.getName() << " a ete elimine." << endl;
         m_player->addKill();
         m_bestiary.addEntry(monstre, true);
         cout << "Victoires : " << m_player->getVictories() << "/10" << endl;
-
-    } else {  // MONSTER_SPARED
+    }
+    else {
+        // monstre epargne
         cout << monstre.getName() << " a ete epargne. +1 victoire." << endl;
         m_player->addSpared();
         m_bestiary.addEntry(monstre, false);
@@ -230,9 +238,7 @@ void GameManager::lancerCombat() {
     }
 }
 
-// ---------------------------------------------------------------
-//  Fin du jeu : affiche le type de fin selon kills / spared
-// ---------------------------------------------------------------
+// affiche la fin du jeu (3 fins possibles)
 void GameManager::showEnding() {
     cout << "\n===============================" << endl;
     cout << "         FIN DU JEU            " << endl;
@@ -246,16 +252,19 @@ void GameManager::showEnding() {
     int spared = m_player->getSpared();
 
     if (kills == 0) {
+        // fin pacifiste
         cout << "--- FIN PACIFISTE ---" << endl;
         cout << "Vous avez epargne chacun de vos adversaires." << endl;
         cout << "La paix regne sur Alterdune." << endl;
-
-    } else if (spared == 0) {
+    }
+    else if (spared == 0) {
+        // fin genocidaire
         cout << "--- FIN GENOCIDAIRE ---" << endl;
         cout << "Vous avez elimine tous vos adversaires sans pitie." << endl;
         cout << "Alterdune tremble a l'evocation de votre nom." << endl;
-
-    } else {
+    }
+    else {
+        // fin neutre
         cout << "--- FIN NEUTRE ---" << endl;
         cout << "Vous avez tue et epargne..." << endl;
         cout << "Alterdune se souvient de vous avec ambiguite." << endl;

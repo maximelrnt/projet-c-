@@ -18,9 +18,9 @@
 using namespace std;
 
 // ================================================================
-//  CODES ANSI
+//  codes couleur ANSI pour la console
 // ================================================================
-static const char* R   = "\033[0m";         // Reset
+static const char* R   = "\033[0m";         // reset
 static const char* BOLD= "\033[1m";
 static const char* RED = "\033[1;91m";
 static const char* YEL = "\033[1;93m";
@@ -32,58 +32,62 @@ static const char* BLU = "\033[1;94m";
 static const char* DIM = "\033[2m";
 static const char* GRY = "\033[90m";
 
-// Caracteres boite (UTF-8 box-drawing)
-static const string TL = "\u250C"; // ┌
-static const string TR = "\u2510"; // ┐
-static const string BL = "\u2514"; // └
-static const string BR = "\u2518"; // ┘
-static const string HZ = "\u2500"; // ─
-static const string VT = "\u2502"; // │
-static const string ML = "\u251C"; // ├
-static const string MR = "\u2524"; // ┤
-static const string TM = "\u252C"; // ┬
-static const string BM = "\u2534"; // ┴
-static const string CR = "\u253C"; // ┼
-// Double bordure pour le cadre externe
-static const string DTL= "\u2554"; // ╔
-static const string DTR= "\u2557"; // ╗
-static const string DBL= "\u255A"; // ╚
-static const string DBR= "\u255D"; // ╝
-static const string DHZ= "\u2550"; // ═
-static const string DVT= "\u2551"; // ║
-static const string DML= "\u2560"; // ╠
-static const string DMR= "\u2563"; // ╣
+// caracteres de bordure pour les boites (UTF-8)
+static const string TL = "\u250C";
+static const string TR = "\u2510";
+static const string BL = "\u2514";
+static const string BR = "\u2518";
+static const string HZ = "\u2500";
+static const string VT = "\u2502";
+static const string ML = "\u251C";
+static const string MR = "\u2524";
+static const string TM = "\u252C";
+static const string BM = "\u2534";
+static const string CR = "\u253C";
+// bordure double pour le cadre principal
+static const string DTL= "\u2554";
+static const string DTR= "\u2557";
+static const string DBL= "\u255A";
+static const string DBR= "\u255D";
+static const string DHZ= "\u2550";
+static const string DVT= "\u2551";
+static const string DML= "\u2560";
+static const string DMR= "\u2563";
 
-static const int BOX_WIDTH = 56; // largeur interieure de la boite
+static const int BOX_WIDTH = 56;  // largeur de la boite
 
 // ================================================================
-//  Helpers utilitaires
+//  fonctions utilitaires pour l'affichage
 // ================================================================
+
+// repete une string n fois
 static string repeat(const string& s, int n) {
-    string r; for (int i = 0; i < n; i++) r += s; return r;
+    string r;
+    for (int i = 0; i < n; i++) r += s;
+    return r;
 }
 
-// Pad une string jusqu'a une largeur (en comptant uniquement les char visibles)
-// Attention: les codes ANSI ne comptent pas comme caracteres visibles
+// calcule la longueur visible d'un texte (sans les codes ANSI)
 static int visibleLen(const string& s) {
-    int len = 0; bool inEsc = false;
-    for (char c : s) {
-        if (c == '\033') { inEsc = true; continue; }
-        if (inEsc) { if (c == 'm') inEsc = false; continue; }
+    int len = 0;
+    bool inEsc = false;
+    for (int i = 0; i < (int)s.size(); i++) {
+        if (s[i] == '\033') { inEsc = true; continue; }
+        if (inEsc) { if (s[i] == 'm') inEsc = false; continue; }
         len++;
     }
     return len;
 }
 
+// padde une string a droite pour atteindre une largeur fixe
 static string padRight(const string& s, int width) {
     int vl = visibleLen(s);
     if (vl >= width) return s;
     return s + string(width - vl, ' ');
 }
 
-// Ligne de boite double avec contenu centre
+// cree une ligne dans la boite avec le contenu centre
 static string boxLine(const string& content, const string& color = "") {
-    string vis = content;
     int vl = visibleLen(content);
     int padding = max(0, BOX_WIDTH - vl);
     int lpad = padding / 2;
@@ -91,35 +95,39 @@ static string boxLine(const string& content, const string& color = "") {
     return DVT + " " + color + string(lpad, ' ') + content + string(rpad, ' ') + R + " " + DVT;
 }
 
-// Ligne de boite double avec contenu aligne a gauche
+// ligne de boite aligne a gauche
 static string boxLineL(const string& content, const string& colorCode = "") {
     int vl = visibleLen(content);
     int rpad = max(0, BOX_WIDTH - vl);
     return DVT + " " + colorCode + content + string(rpad, ' ') + R + " " + DVT;
 }
 
+// haut de la boite
 static string boxTop() {
     return DTL + repeat(DHZ, BOX_WIDTH + 2) + DTR;
 }
+// bas de la boite
 static string boxBot() {
     return DBL + repeat(DHZ, BOX_WIDTH + 2) + DBR;
 }
+// milieu de la boite (separateur)
 static string boxMid() {
     return DML + repeat(DHZ, BOX_WIDTH + 2) + DMR;
 }
+// ligne vide dans la boite
 static string boxEmpty() {
     return DVT + string(BOX_WIDTH + 2, ' ') + DVT;
 }
 
 // ================================================================
-//  Construction de la barre HP
+//  barre de HP (verte, jaune ou rouge selon le pourcentage)
 // ================================================================
 string Combat::makeHpBar(int hp, int hpMax, int barLen) const {
     if (hpMax <= 0) hpMax = 1;
     int filled = max(0, min(barLen, hp * barLen / hpMax));
     int empty  = barLen - filled;
 
-    // Couleur selon pourcentage
+    // couleur selon le pourcentage de vie
     string barColor;
     double pct = (double)hp / hpMax;
     if (pct > 0.5)      barColor = GRN;
@@ -127,25 +135,27 @@ string Combat::makeHpBar(int hp, int hpMax, int barLen) const {
     else                 barColor = RED;
 
     string bar = barColor + "[";
-    for (int i = 0; i < filled; i++) bar += "\u2588"; // █
+    for (int i = 0; i < filled; i++) bar += "\u2588"; // bloc plein
     bar += DIM;
-    for (int i = 0; i < empty;  i++) bar += "\u2591"; // ░
+    for (int i = 0; i < empty;  i++) bar += "\u2591"; // bloc vide
     bar += R + barColor + "]" + R;
     return bar;
 }
 
 // ================================================================
-//  Lecture des lignes ASCII du monstre
+//  lit les lignes ASCII du fichier du monstre
 // ================================================================
 vector<string> Combat::lireAsciiLines() const {
     vector<string> lines;
     string chemin = getAsciiFilePath();
     if (chemin.empty()) return lines;
+
     ifstream f(chemin);
     if (!f.is_open()) return lines;
+
     string ligne;
     while (getline(f, ligne)) {
-        // Enlever \r si present
+        // enleve le \r si il y a (windows)
         if (!ligne.empty() && ligne.back() == '\r') ligne.pop_back();
         lines.push_back(ligne);
     }
@@ -153,7 +163,7 @@ vector<string> Combat::lireAsciiLines() const {
 }
 
 // ================================================================
-//  Ecran principal de combat style Pokemon
+//  ecran principal de combat (style pokemon avec les barres HP)
 // ================================================================
 void Combat::afficherEcranCombat(const string& message) const {
 #ifdef _WIN32
@@ -165,22 +175,21 @@ void Combat::afficherEcranCombat(const string& message) const {
     string couleur = getCouleurMonstre();
     string catStr  = m_monster.getCategoryStr();
 
-    // --- Lignes ASCII du monstre (max 8 lignes) ---
+    // on lit l'art ASCII du monstre
     vector<string> ascii = lireAsciiLines();
-    // Padding a 8 lignes pour une hauteur fixe
+    // on padde a 8 lignes minimum
     while ((int)ascii.size() < 8) ascii.push_back("");
 
-    // ╔══ Header ══╗
+    // haut de la boite
     cout << couleur << boxTop() << R << "\n";
 
-    // Nom + categorie du monstre
+    // nom + categorie du monstre
     string header = string(BOLD) + m_monster.getName() + R
                   + couleur + "  [" + catStr + "]";
     cout << couleur << boxLineL(header, couleur) << R << "\n";
     cout << couleur << boxMid() << R << "\n";
 
-    // Art ASCII du monstre (cadre gauche) + Stats monstre a droite
-    // On affiche max 8 lignes
+    // art ASCII a gauche + stats monstre a droite
     int hpMaxM = m_monster.getHpMax();
     int hpM    = m_monster.getHp();
     int mercyM = m_monster.getMercy();
@@ -190,7 +199,6 @@ void Combat::afficherEcranCombat(const string& message) const {
 
     for (int i = 0; i < 8; i++) {
         string art = (i < (int)ascii.size()) ? ascii[i] : "";
-        // Largeur art = 24 chars, padded
         int artVlen = visibleLen(art);
         string artPad = couleur + art + R + string(max(0, 24 - artVlen), ' ');
 
@@ -204,7 +212,7 @@ void Combat::afficherEcranCombat(const string& message) const {
 
     cout << couleur << boxMid() << R << "\n";
 
-    // --- Separateur : infos joueur ---
+    // infos du joueur
     int hpJ    = m_player.getHp();
     int hpMaxJ = m_player.getHpMax();
     string hpBarJ = makeHpBar(hpJ, hpMaxJ, 16);
@@ -214,9 +222,8 @@ void Combat::afficherEcranCombat(const string& message) const {
     cout << boxLineL(joueurLine) << "\n";
     cout << couleur << boxMid() << R << "\n";
 
-    // --- Message central ---
+    // message central si il y en a un
     if (!message.empty()) {
-        // Afficher le message ligne par ligne (peut contenir \n)
         stringstream mss(message);
         string mline;
         while (getline(mss, mline)) {
@@ -225,7 +232,7 @@ void Combat::afficherEcranCombat(const string& message) const {
         cout << couleur << boxMid() << R << "\n";
     }
 
-    // --- Menu FIGHT / ACT / ITEM / MERCY ---
+    // menu FIGHT / ACT / ITEM / MERCY
     string menu =
         string(WHI) + "> " + RED  + "FIGHT" + R + "  " +
         CYA + "ACT" + R + "  " +
@@ -236,7 +243,7 @@ void Combat::afficherEcranCombat(const string& message) const {
 }
 
 // ================================================================
-//  Apparition du monstre (style Pokemon : intro cinematique)
+//  apparition du monstre (style pokemon)
 // ================================================================
 void Combat::afficherApparitionPokemon() const {
     string couleur = getCouleurMonstre();
@@ -256,8 +263,8 @@ void Combat::afficherApparitionPokemon() const {
     cout << couleur << boxMid() << R << "\n";
     cout << boxEmpty() << "\n";
 
-    for (const string& line : ascii) {
-        cout << couleur << boxLineL("  " + line, couleur) << R << "\n";
+    for (int i = 0; i < (int)ascii.size(); i++) {
+        cout << couleur << boxLineL("  " + ascii[i], couleur) << R << "\n";
     }
 
     cout << boxEmpty() << "\n";
@@ -267,18 +274,19 @@ void Combat::afficherApparitionPokemon() const {
 }
 
 // ================================================================
-//  Constructeur
+//  constructuer
 // ================================================================
 Combat::Combat(Player& player, Monster monster)
     : m_player(player), m_monster(monster), m_result(CombatResult::PLAYER_DEAD) {}
 
-// ================================================================
+// retounre la couleur ANSI selon la categorie du monstre
 string Combat::getCouleurMonstre() const {
     if (m_monster.getCategory() == MonsterCategory::BOSS)     return RED;
     if (m_monster.getCategory() == MonsterCategory::MINIBOSS) return YEL;
-    return CYA;
+    return CYA;  // normal
 }
 
+// retounre le chemin vers le fichier ASCII du monstre
 string Combat::getAsciiFilePath() const {
     string nom = m_monster.getName();
     if (nom == "Garfield")       return "Data/garfield.txt";
@@ -290,29 +298,32 @@ string Combat::getAsciiFilePath() const {
     return "";
 }
 
-// Garde l'ancienne pour compatibilite (appelee dans run())
+// appelle l'afichage pokemon (garde pour compatibilite)
 void Combat::afficherMonstreApparition() const {
     afficherApparitionPokemon();
 }
 
 // ================================================================
-//  Boucle principale
+//  boucle principale du combat
 // ================================================================
 void Combat::run() {
     afficherMonstreApparition();
 
+    // tant que les deux sont en vie, on continue
     while (m_player.isAlive() && m_monster.isAlive()) {
         afficherEcranCombat();
 
         bool continuer = tourJoueur();
         if (!continuer) break;
 
+        // si le monstre est mort apres le tour du joueur
         if (!m_monster.isAlive()) {
             m_result = CombatResult::MONSTER_KILLED;
             Sleep(1500);
             break;
         }
 
+        // tour du monstre
         bool joueurVivant = tourMonstre();
         Sleep(1500);
 
@@ -322,18 +333,20 @@ void Combat::run() {
         }
     }
 
+    // on determine le resultat final
     if (m_result != CombatResult::MONSTER_SPARED) {
         if (!m_player.isAlive())       m_result = CombatResult::PLAYER_DEAD;
         else if (!m_monster.isAlive()) m_result = CombatResult::MONSTER_KILLED;
     }
 
+    // si le monstre est tue, on affiche l'ecran de victoire
     if (m_result == CombatResult::MONSTER_KILLED) {
         afficherVictoire();
     }
 }
 
 // ================================================================
-//  Tour du joueur
+//  tour du joueur : il choisit FIGHT, ACT, ITEM ou MERCY
 // ================================================================
 bool Combat::tourJoueur() {
     string couleur = getCouleurMonstre();
@@ -349,14 +362,15 @@ bool Combat::tourJoueur() {
 
     switch (choix) {
 
-    case 1: { // FIGHT
+    case 1: {
+        // FIGHT : on attaque le monstre
         int dmg = calculerDegats(m_player.getAtk());
         m_monster.takeDamage(dmg);
 
-        string msg = string(GRN) + "  Vous attaquez " + m_monster.getName()
-                   + " : -" + to_string(dmg) + " HP !" + R;
-        cout << msg << "\n";
+        cout << GRN << "  Vous attaquez " << m_monster.getName()
+             << " : -" << dmg << " HP !" << R << "\n";
 
+        // si on attaque, la mercy diminue aussi
         int oldMercy = m_monster.getMercy();
         if (oldMercy > 0) {
             int penalty = dmg + (oldMercy / 5);
@@ -366,6 +380,7 @@ bool Combat::tourJoueur() {
                 cout << YEL << "  Le monstre perd confiance... Mercy -" << drop << R << "\n";
         }
 
+        // verifier si le monstre est mort
         if (!m_monster.isAlive()) {
             cout << GRN << "  " << m_monster.getName() << " s'effondre !" << R << "\n";
             m_result = CombatResult::MONSTER_KILLED;
@@ -375,7 +390,8 @@ bool Combat::tourJoueur() {
         break;
     }
 
-    case 2: { // ACT
+    case 2: {
+        // ACT : choisir une action pacifiste
         const vector<string>& actIds = m_monster.getActIds();
         vector<ActAction> dispo;
         ActCatalogue::displayAvailable(actIds, dispo);
@@ -383,7 +399,8 @@ bool Combat::tourJoueur() {
         if (dispo.empty()) break;
 
         cout << "  " << GRY << "[0] Annuler" << R << "\n  Choix : ";
-        int c; cin >> c;
+        int c;
+        cin >> c;
         if (c == 0 || c < 1 || c > (int)dispo.size()) break;
 
         int impact = dispo[c - 1].getMercyImpact();
@@ -397,7 +414,8 @@ bool Combat::tourJoueur() {
         break;
     }
 
-    case 3: { // ITEM
+    case 3: {
+        // ITEM : utiliser un objet de l'inventaire
         Inventory& inv = m_player.getInventory();
         if (inv.isEmpty()) { cout << "  Sac vide !\n"; break; }
         if (!inv.hasUsableItems()) { cout << "  Tous les objets sont epuises !\n"; break; }
@@ -405,7 +423,8 @@ bool Combat::tourJoueur() {
         cout << "\n  Inventaire :\n";
         inv.display();
         cout << "  " << GRY << "[0] Annuler" << R << "\n  Choix : ";
-        int c; cin >> c;
+        int c;
+        cin >> c;
         if (c == 0 || c < 1 || c > inv.size()) break;
 
         if (inv.useItem(c - 1, m_player))
@@ -416,13 +435,15 @@ bool Combat::tourJoueur() {
         break;
     }
 
-    case 4: { // MERCY
+    case 4: {
+        // MERCY : epargner le monstre si la jauge est pleine
         if (m_monster.isMercyFull()) {
             cout << MAG << "  Vous eprouvez de la pitie...\n";
             cout << "  " << m_monster.getName() << " s'en va. (Epargne)" << R << "\n";
             m_result = CombatResult::MONSTER_SPARED;
             return false;
-        } else {
+        }
+        else {
             cout << YEL << "  " << m_monster.getName() << " n'est pas encore apaise !\n";
             cout << "  Mercy : " << m_monster.getMercy() << "/" << m_monster.getMercyGoal()
                  << "  -- Utilisez ACT." << R << "\n";
@@ -438,7 +459,7 @@ bool Combat::tourJoueur() {
 }
 
 // ================================================================
-//  Tour du monstre
+//  tour du monstre : il attaque le joueur
 // ================================================================
 bool Combat::tourMonstre() {
     int dmg = calculerDegats(m_monster.getAtk());
@@ -454,13 +475,15 @@ bool Combat::tourMonstre() {
 }
 
 // ================================================================
+//  calcul des degats : aleatoire entre 1 et atk
+// ================================================================
 int Combat::calculerDegats(int atk) {
     if (atk <= 0) return 1;
     return rand() % atk + 1;
 }
 
 // ================================================================
-//  Statut (ancienne methode conservee)
+//  affichage du statut (anciene methode gardee au cas ou)
 // ================================================================
 void Combat::afficherStatut() const {
     string couleur = getCouleurMonstre();
@@ -476,7 +499,7 @@ void Combat::afficherSeparateur() const {
 }
 
 // ================================================================
-//  Ecran de victoire style Pokemon
+//  ecran de victoire (quand le monstre est tue)
 // ================================================================
 void Combat::afficherVictoire() const {
 #ifdef _WIN32
@@ -490,7 +513,7 @@ void Combat::afficherVictoire() const {
     cout << "\n";
     cout << MAG << boxTop() << R << "\n";
     cout << MAG << boxEmpty() << R << "\n";
-    cout << MAG << boxLine(string(YEL) + string(BOLD) + "★  VICTOIRE !  ★" + R, "") << R << "\n";
+    cout << MAG << boxLine(string(YEL) + string(BOLD) + "\u2605  VICTOIRE !  \u2605" + R, "") << R << "\n";
     cout << MAG << boxEmpty() << R << "\n";
     cout << MAG << boxMid()   << R << "\n";
 

@@ -3,45 +3,49 @@
 #include "../core/Monster.h"
 #include "ActionAct.h"
 #include <string>
+#include <vector>
 
-/*
- * CombatResult : les 3 issues possibles d'un combat.
- */
+// les 3 resultats possibles d'un combat
 enum class CombatResult { PLAYER_DEAD, MONSTER_KILLED, MONSTER_SPARED };
 
-/*
- * Combat : gere un combat complet entre le joueur et un monstre.
- * Orchestre les tours joueur/monstre, les menus FIGHT/ACT/ITEM/MERCY,
- * affiche l'art ASCII du monstre au debut, et retourne un CombatResult.
- */
+// Combat : gere un combat complet entre le joueur et un monstre
+// fait les tours du joueur et du monstre, affiche les menus, etc
 class Combat {
 private:
-    Player& m_player;
-    Monster m_monster;
-    CombatResult m_result;
+    Player& m_player;      // reference vers le joueur
+    Monster m_monster;      // copie du monstre (pour pas modifier l'original)
+    CombatResult m_result;  // le resultat du combat
 
 public:
     Combat(Player& player, Monster monster);
 
+    // lance la boucle de combat
     void run();
     CombatResult getResult() const { return m_result; }
 
 private:
+    // tour du joueur (FIGHT/ACT/ITEM/MERCY)
     bool tourJoueur();
+
+    // tour du monstre (il attaque)
     bool tourMonstre();
+
+    // calcul aleatoire des degats
     int calculerDegats(int atk);
+
+    // fonctions d'affichage
     void afficherStatut() const;
     void afficherSeparateur() const;
 
-    // Affichage ASCII du monstre au debut du combat
+    // affichage ASCII du monstre au debut
     void afficherMonstreApparition() const;
     std::string getAsciiFilePath() const;
     std::string getCouleurMonstre() const;
 
-    // Affichage de la victoire
+    // ecran de victoire
     void afficherVictoire() const;
 
-    // === UI style Pokemon (ANSI only, aucune dependance) ===
+    // --- fonctions pour l'interface style pokemon (ANSI) ---
     std::string makeHpBar(int hp, int hpMax, int barLen = 20) const;
     void afficherEcranCombat(const std::string& message = "") const;
     void afficherApparitionPokemon() const;
