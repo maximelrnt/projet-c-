@@ -4,7 +4,7 @@
  * Active les couleurs ANSI dans la console Windows,
  * puis lance le GameManager.
  */
-#include "GameManager.h"
+#include "managers/GameManager.h"
 #include <ctime>
 #include <cstdlib>
 #ifdef _WIN32
