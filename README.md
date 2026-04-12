@@ -1,10 +1,10 @@
 # Projet : Programmation Orientée Objet en C++ - ALTERDUNE
 
-**Auteur :** Louis Le Forestier & Maxime Laurent 
-**Institution :** ESILV  
-**Contact :** louis.le_forestier@edu.devinci.fr & maxime.laurent@edu.devinci.fr
-**Période :** Second semestre 2025-2026  
-
+**Auteur :** Louis Le Forestier & Maxime Laurent   
+**Institution :** ESILV    
+**Contact :** louis.le_forestier@edu.devinci.fr & maxime.laurent@edu.devinci.fr  
+**Période :** Second semestre 2025-2026    
+ 
 ---
 
 **ACCUEIL**   
