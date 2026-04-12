@@ -4,7 +4,7 @@
 > Auteur du sujet : Daniel Wladdimiro  
 > Binôme : Louis Le Forestier & Maxime  
 > Soutenance mini-suivi : **08/04** | Soutenance P1 : **29/04** | P2 : **06/05**  
-> **Dernière mise à jour : 12/04/2026 — Simplification du code (commentaires étudiants, code plus lisible)**
+> **Dernière mise à jour : 12/04/2026 — Amélioration visuelle menus (ANSI, box-drawing ASCII, barre de progression, fix warnings Unicode)**
 
 ---
 

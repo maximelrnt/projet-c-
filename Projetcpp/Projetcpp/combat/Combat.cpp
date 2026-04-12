@@ -32,27 +32,28 @@ static const char* BLU = "\033[1;94m";
 static const char* DIM = "\033[2m";
 static const char* GRY = "\033[90m";
 
-// caracteres de bordure pour les boites (UTF-8)
-static const string TL = "\u250C";
-static const string TR = "\u2510";
-static const string BL = "\u2514";
-static const string BR = "\u2518";
-static const string HZ = "\u2500";
-static const string VT = "\u2502";
-static const string ML = "\u251C";
-static const string MR = "\u2524";
-static const string TM = "\u252C";
-static const string BM = "\u2534";
-static const string CR = "\u253C";
+// caracteres de bordure pour les boites
+// on utilise des caracteres ASCII simples pour eviter les warnings Unicode
+static const string TL = "+";
+static const string TR = "+";
+static const string BL = "+";
+static const string BR = "+";
+static const string HZ = "-";
+static const string VT = "|";
+static const string ML = "+";
+static const string MR = "+";
+static const string TM = "+";
+static const string BM = "+";
+static const string CR = "+";
 // bordure double pour le cadre principal
-static const string DTL= "\u2554";
-static const string DTR= "\u2557";
-static const string DBL= "\u255A";
-static const string DBR= "\u255D";
-static const string DHZ= "\u2550";
-static const string DVT= "\u2551";
-static const string DML= "\u2560";
-static const string DMR= "\u2563";
+static const string DTL= "#";
+static const string DTR= "#";
+static const string DBL= "#";
+static const string DBR= "#";
+static const string DHZ= "=";
+static const string DVT= "#";
+static const string DML= "#";
+static const string DMR= "#";
 
 static const int BOX_WIDTH = 56;  // largeur de la boite
 
@@ -135,9 +136,9 @@ string Combat::makeHpBar(int hp, int hpMax, int barLen) const {
     else                 barColor = RED;
 
     string bar = barColor + "[";
-    for (int i = 0; i < filled; i++) bar += "\u2588"; // bloc plein
+    for (int i = 0; i < filled; i++) bar += "#"; // bloc plein
     bar += DIM;
-    for (int i = 0; i < empty;  i++) bar += "\u2591"; // bloc vide
+    for (int i = 0; i < empty;  i++) bar += "."; // bloc vide
     bar += R + barColor + "]" + R;
     return bar;
 }
@@ -513,7 +514,7 @@ void Combat::afficherVictoire() const {
     cout << "\n";
     cout << MAG << boxTop() << R << "\n";
     cout << MAG << boxEmpty() << R << "\n";
-    cout << MAG << boxLine(string(YEL) + string(BOLD) + "\u2605  VICTOIRE !  \u2605" + R, "") << R << "\n";
+    cout << MAG << boxLine(string(YEL) + string(BOLD) + "*  VICTOIRE !  *" + R, "") << R << "\n";
     cout << MAG << boxEmpty() << R << "\n";
     cout << MAG << boxMid()   << R << "\n";
 
