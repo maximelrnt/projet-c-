@@ -463,7 +463,21 @@ bool Combat::tourJoueur() {
 //  tour du monstre : il attaque le joueur
 // ================================================================
 bool Combat::tourMonstre() {
-    int dmg = calculerDegats(m_monster.getAtk());
+    int atk = m_monster.getAtk();
+    int mercy = m_monster.getMercy();
+    int mercyGoal = m_monster.getMercyGoal();
+    
+    // Réduction des dégâts en fonction du pourcentage de mercy
+    if (mercyGoal > 0 && mercy > 0) {
+        double pourcentage = (double)mercy / mercyGoal;
+        if (pourcentage > 1.0) pourcentage = 1.0;
+        
+        // L'attaque est réduite proportionnellement
+        atk = atk - (int)(atk * pourcentage);
+        if (atk < 1) atk = 1; // On garde au moins 1 d'attaque
+    }
+
+    int dmg = calculerDegats(atk);
     m_player.takeDamage(dmg);
     cout << RED << "\n  " << m_monster.getName() << " vous attaque : -" << dmg << " HP !" << R << "\n";
     cout << "  Vos HP : " << m_player.getHp() << "/" << m_player.getHpMax() << "\n";
