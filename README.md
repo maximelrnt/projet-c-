@@ -1,8 +1,8 @@
 # Projet : Programmation Orientée Objet en C++ - ALTERDUNE
 
-**Auteur :** Louis Le Forestier et Maxime Laurent   
+**Auteur :** Louis Le Forestier & Maxime Laurent 
 **Institution :** ESILV  
-**Contact :** louis.le-forestier@edu.devinci.fr | maxime.laurent@edu.devinci.fr  
+**Contact :** louis.le_forestier@edu.devinci.fr & maxime.laurent@edu.devinci.fr
 **Période :** Second semestre 2025-2026  
 
 ---
@@ -11,7 +11,7 @@
 - [**PROJET**](./dossiers%20md/Projet.md)
 - [**PLAN D'IMPLEMENTATION**](./dossiers%20md/implementation_plan.md)
 
----
+--- 
 
 ## 1. Introduction
 La programmation orientée objet (POO) est un paradigme fondamental pour le développement de logiciels structurés et modulaires. Ce projet doit être réalisé en binôme. Il propose la création d'un mini-jeu de type RPG nommé ALTERDUNE, où les entités (joueur, monstres, objets) sont modélisées sous forme de classes. 
@@ -125,3 +125,8 @@ Format : `categorie; nom; hp; atk; def; mercyGoal; act1; act2; act3; act4`
 
 **Bonus :** Jusqu'à +4 points pour un projet "sur-salient".  
 **Formule :** $Note = 0.2 \times Note_{mini} + 0.8 \times Note_{soutenance} + bonus - penalite$
+
+
+
+
+afficher des images et du song
