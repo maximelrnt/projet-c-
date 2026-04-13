@@ -71,6 +71,9 @@ static void afficherTitre() {
 void GameManager::demarrer() {
 #ifdef _WIN32
     PlaySoundA("Data/musiques/menu.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+#else
+    system("killall -q aplay 2>/dev/null");
+    system("aplay -q Data/musiques/menu.wav 2>/dev/null &");
 #endif
 
     afficherTitre();
@@ -282,6 +285,9 @@ void GameManager::lancerCombat() {
 
 #ifdef _WIN32
     PlaySoundA("Data/musiques/combat.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+#else
+    system("killall -q aplay 2>/dev/null");
+    system("aplay -q Data/musiques/combat.wav 2>/dev/null &");
 #endif
 
     // on lance le combat
@@ -290,6 +296,9 @@ void GameManager::lancerCombat() {
 
 #ifdef _WIN32
     PlaySoundA("Data/musiques/menu.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+#else
+    system("killall -q aplay 2>/dev/null");
+    system("aplay -q Data/musiques/menu.wav 2>/dev/null &");
 #endif
 
     // on traite le resultat
@@ -325,6 +334,7 @@ void GameManager::showEnding() {
     PlaySoundA(NULL, NULL, 0); // arreter la musique
     system("cls");
 #else
+    system("killall -q aplay 2>/dev/null");
     system("clear");
 #endif
 
