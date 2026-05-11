@@ -1,3 +1,4 @@
+// GameManager.cpp — Chef d'orchestre : menus, combats, musique, fins
 #include "GameManager.h"
 #include "../items/HealItem.h"
 #include "../combat/Combat.h"
@@ -21,7 +22,7 @@
 
 using namespace std;
 
-// codes couleur ANSI pour les menus
+// Couleurs ANSI
 static const char* GOLD  = "\033[1;33m";
 static const char* CYAN  = "\033[1;36m";
 static const char* WHITE = "\033[1;97m";
@@ -34,14 +35,18 @@ static const char* DIM   = "\033[2m";
 static const char* BOLD  = "\033[1m";
 static const char* RESET = "\033[0m";
 
-// constructuer et destructeur
-GameManager::GameManager() : m_player(nullptr), jeuEnCours(true) {}
-
-GameManager::~GameManager() {
-    delete m_player;  // on libere le joueur
+// Constructeur : initialise le pointeur a nullptr (AGREGATION)
+GameManager::GameManager() {
+    m_player   = nullptr;
+    jeuEnCours = true;
+    // m_bestiary et m_monsterPool sont construits automatiquement (COMPOSITION)
 }
 
-// affiche le titre du jeu en ASCII art avec des couleurs
+// Destructeur : libere le joueur alloue dynamiquement
+GameManager::~GameManager() {
+    delete m_player;
+}
+
 static void afficherTitre() {
 #ifdef _WIN32
     system("cls");
@@ -67,7 +72,6 @@ static void afficherTitre() {
     cout << "\n";
 }
 
-// demarage du jeu : titre, saisie du nom, chargement csv
 void GameManager::demarrer() {
 #ifdef _WIN32
     PlaySoundA("Data/musiques/menu.wav", NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
@@ -82,13 +86,11 @@ void GameManager::demarrer() {
     string nomJoueur;
     cin >> nomJoueur;
 
-    // on cree le joueur avec des stats de base
+    // AGREGATION : on cree le joueur dynamiquement (new)
     m_player = new Player(nomJoueur, 100, 20, 10);
 
-    // on initialise le catalogue d'actions
     ActCatalogue::init();
 
-    // on propose de charger une sauvegard
     cout << "\n" << GOLD << "  >> " << WHITE << "Charger la sauvegarde existante ? " << DIM << "(o/n) : " << RESET;
     char choixLoad;
     cin >> choixLoad;
@@ -96,7 +98,6 @@ void GameManager::demarrer() {
     if (choixLoad == 'o' || choixLoad == 'O') {
         if (SaveManager::loadGame("Data/Save/save1.sav", *m_player, m_bestiary)) {
             cout << GRN << "  Sauvegarde chargee avec succes !" << RESET << "\n";
-            // on charge quand meme les monstres pour les combats
             m_monsterPool = FileLoader::loadMonsters("csv/monsters.csv");
             cout << "\n" << CYAN << "  Heureux de vous revoir, " << WHITE << m_player->getName() << CYAN << " !" << RESET << endl;
         }
@@ -113,7 +114,6 @@ void GameManager::demarrer() {
         cout << "\n" << CYAN << "  Bienvenue, " << WHITE << nomJoueur << CYAN << " !" << RESET << endl;
     }
 
-    // on affiche le resumme de depart
     m_player->display();
     cout << "  Inventaire de depart :" << endl;
     m_player->getInventory().display();
@@ -125,7 +125,6 @@ void GameManager::demarrer() {
     showMainMenu();
 }
 
-// boucle du menu principal
 void GameManager::showMainMenu() {
     while (jeuEnCours && m_player->isAlive() && !m_player->hasWon()) {
 #ifdef _WIN32
@@ -134,7 +133,6 @@ void GameManager::showMainMenu() {
         system("clear");
 #endif
 
-        // barre de progression des victoires
         int victoires = m_player->getVictories();
         int total = 10;
         string progBar = "[";
@@ -223,7 +221,6 @@ void GameManager::showMainMenu() {
             break;
 
         case 5:
-            // sauvegarde
             if (SaveManager::saveGame("Data/Save/save1.sav", *m_player, m_bestiary)) {
                 cout << "\n" << GRN << "  Partie sauvegardee dans Data/Save/save1.sav !" << RESET << endl;
             }
@@ -244,7 +241,6 @@ void GameManager::showMainMenu() {
         }
     }
 
-    // fin du jeu
     if (m_player->hasWon()) {
         showEnding();
     }
@@ -267,7 +263,6 @@ void GameManager::showMainMenu() {
     }
 }
 
-// lance un combat contre un monstre aleatoire
 void GameManager::lancerCombat() {
     if (m_monsterPool.empty()) {
         cout << YEL << "  Aucun monstre disponible !" << RESET << endl;
@@ -275,12 +270,10 @@ void GameManager::lancerCombat() {
         return;
     }
 
-    // on tire un monstre au hasard
     static std::mt19937 rng(std::random_device{}());
     std::uniform_int_distribution<int> uni(0, (int)m_monsterPool.size() - 1);
     int index = uni(rng);
 
-    // on clone le monstre pour avoir une copie fraiche
     Monster monstre = m_monsterPool[index].clone();
 
 #ifdef _WIN32
@@ -290,7 +283,7 @@ void GameManager::lancerCombat() {
     system("aplay -q Data/musiques/combat.wav &");
 #endif
 
-    // on lance le combat
+    // DEPENDANCE : on cree un Combat localement
     Combat combat(*m_player, monstre);
     combat.run();
 
@@ -301,11 +294,10 @@ void GameManager::lancerCombat() {
     system("aplay -q Data/musiques/menu.wav 2>/dev/null &");
 #endif
 
-    // on traite le resultat
     CombatResult resultat = combat.getResult();
 
     if (resultat == CombatResult::PLAYER_DEAD) {
-        // la boucle s'arretera toute seule car isAlive() sera false
+        // la boucle s'arretera car isAlive() sera false
     }
     else if (resultat == CombatResult::MONSTER_KILLED) {
         cout << "\n" << GRN << "  Victoire ! " << WHITE << monstre.getName() << GRN << " a ete elimine." << RESET << endl;
@@ -314,7 +306,6 @@ void GameManager::lancerCombat() {
         cout << "  " << YEL << "Victoires : " << WHITE << m_player->getVictories() << "/10" << RESET << endl;
     }
     else {
-        // monstre epargne
         cout << "\n" << MAG << "  " << monstre.getName() << " a ete epargne. +1 victoire." << RESET << endl;
         m_player->addSpared();
         m_bestiary.addEntry(monstre, false);
@@ -328,10 +319,9 @@ void GameManager::lancerCombat() {
     }
 }
 
-// affiche la fin du jeu (3 fins possibles)
 void GameManager::showEnding() {
 #ifdef _WIN32
-    PlaySoundA(NULL, NULL, 0); // arreter la musique
+    PlaySoundA(NULL, NULL, 0);
     system("cls");
 #else
     system("killall -q aplay 2>/dev/null");
@@ -341,7 +331,6 @@ void GameManager::showEnding() {
     int kills  = m_player->getKills();
     int spared = m_player->getSpared();
 
-    // couleur du cadre selon la fin
     const char* endColor = YEL;
     if (kills == 0)      endColor = CYAN;
     else if (spared == 0) endColor = RED;
@@ -359,19 +348,16 @@ void GameManager::showEnding() {
     cout << "  " << MAG << "Epargnes : " << WHITE << spared << RESET << "\n\n";
 
     if (kills == 0) {
-        // fin pacifiste
         cout << CYAN << "  ~~~ FIN PACIFISTE ~~~" << RESET << "\n\n";
         cout << "  " << WHITE << "Vous avez epargne chacun de vos adversaires." << RESET << "\n";
         cout << "  " << CYAN << "La paix regne sur Alterdune." << RESET << "\n";
     }
     else if (spared == 0) {
-        // fin genocidaire
         cout << RED << "  ~~~ FIN GENOCIDAIRE ~~~" << RESET << "\n\n";
         cout << "  " << WHITE << "Vous avez elimine tous vos adversaires sans pitie." << RESET << "\n";
         cout << "  " << RED << "Alterdune tremble a l'evocation de votre nom." << RESET << "\n";
     }
     else {
-        // fin neutre
         cout << YEL << "  ~~~ FIN NEUTRE ~~~" << RESET << "\n\n";
         cout << "  " << WHITE << "Vous avez tue et epargne..." << RESET << "\n";
         cout << "  " << YEL << "Alterdune se souvient de vous avec ambiguite." << RESET << "\n";

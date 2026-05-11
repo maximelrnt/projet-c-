@@ -1,3 +1,4 @@
+// SaveManager.cpp — Serialisation/deserialisation de la partie
 #include "SaveManager.h"
 #include "../items/HealItem.h"
 #include <fstream>
@@ -6,7 +7,6 @@
 
 using namespace std;
 
-// enleve les espaces au debut et a la fin
 string SaveManager::trim(const string& s) {
     int start = (int)s.find_first_not_of(" \t\r\n");
     if (start == (int)string::npos) return "";
@@ -14,12 +14,10 @@ string SaveManager::trim(const string& s) {
     return s.substr(start, end - start + 1);
 }
 
-// sauvegarde toute la partie dans un fichier
 bool SaveManager::saveGame(const string& filename, const Player& player, const Bestiary& bestiary) {
     ofstream file(filename);
     if (!file.is_open()) return false;
 
-    // on ecrit l'entete
     file << "# ALTERDUNE SAVE FILE v1\n";
     file << "PLAYER_NAME=" << player.getName() << "\n";
     file << "PLAYER_HP=" << player.getHp() << "\n";
@@ -30,7 +28,6 @@ bool SaveManager::saveGame(const string& filename, const Player& player, const B
     file << "KILLS=" << player.getKills() << "\n";
     file << "SPARED=" << player.getSpared() << "\n";
 
-    // on serialise l'inventaire (items separes par |, champs par ;)
     file << "INVENTORY=";
     const auto& items = player.getInventory().getItems();
     for (int i = 0; i < (int)items.size(); i++) {
@@ -40,7 +37,6 @@ bool SaveManager::saveGame(const string& filename, const Player& player, const B
     }
     file << "\n";
 
-    // on serialise le bestiaire
     file << "BESTIARY=";
     const auto& entries = bestiary.getEntries();
     for (int i = 0; i < (int)entries.size(); i++) {
@@ -55,15 +51,13 @@ bool SaveManager::saveGame(const string& filename, const Player& player, const B
     return true;
 }
 
-// charge une partie depuis un fichier de sauvegarde
 bool SaveManager::loadGame(const string& filename, Player& player, Bestiary& bestiary) {
     ifstream file(filename);
     if (!file.is_open()) return false;
 
     string line;
-    getline(file, line);  // on lit le header
+    getline(file, line);
 
-    // on verifie que c'est bien un fichier de sauvegard alterdune
     if (line != "# ALTERDUNE SAVE FILE v1") {
         cout << "[SaveManager] Format de sauvegarde invalide." << endl;
         return false;
@@ -71,11 +65,9 @@ bool SaveManager::loadGame(const string& filename, Player& player, Bestiary& bes
 
     int hp = 0, hpMax = 0, atk = 0, def = 0;
 
-    // on lit ligne par ligne
     while (getline(file, line)) {
         if (line.empty()) continue;
 
-        // on separe la cle et la valeur sur '='
         size_t pos = line.find('=');
         if (pos == string::npos) continue;
 
@@ -83,7 +75,6 @@ bool SaveManager::loadGame(const string& filename, Player& player, Bestiary& bes
         string val = line.substr(pos + 1);
         val = trim(val);
 
-        // on rempli les donnees du joueur
         if (key == "PLAYER_NAME") player.setName(val);
         else if (key == "PLAYER_HP") hp = stoi(val);
         else if (key == "PLAYER_HP_MAX") hpMax = stoi(val);
@@ -94,7 +85,6 @@ bool SaveManager::loadGame(const string& filename, Player& player, Bestiary& bes
         else if (key == "SPARED") player.setSpared(stoi(val));
 
         else if (key == "INVENTORY") {
-            // on vide l'inventaire actuel et on le recharge
             Inventory& inv = player.getInventory();
             for (int i = 0; i < (int)inv.getItems().size(); i++) {
                 delete inv.getItems()[i];
@@ -120,7 +110,6 @@ bool SaveManager::loadGame(const string& filename, Player& player, Bestiary& bes
         }
 
         else if (key == "BESTIARY") {
-            // on vide le bestiaire et on le recharge
             bestiary.clear();
             if (!val.empty()) {
                 stringstream ss(val);
@@ -142,7 +131,6 @@ bool SaveManager::loadGame(const string& filename, Player& player, Bestiary& bes
         }
     }
 
-    // on applique les stats
     player.loadStateHp(hp, hpMax);
     player.setStats(atk, def);
 

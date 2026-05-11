@@ -1,37 +1,29 @@
+// Inventory.h — COMPOSITION dans Player : Player *-- Inventory
+//               COMPOSITION de Item*  : Inventory *-- Item
 #pragma once
 #include "Item.h"
 #include <vector>
 
 using namespace std;
 
-class Player;  // forward declaration
+class Player;
 
-// Inventory : gere la liste des objets du joueur
-// c'est une composition dans Player (le joueur "possede" un inventaire)
 class Inventory {
 private:
-    vector<Item*> m_items;  // tableau de pointeurs vers les items
+    vector<Item*> m_items;  // COMPOSITION : possede les items (delete dans ~Inventory)
 
 public:
-    // constructeur : cree un inventaire vide
     Inventory();
-    ~Inventory();  // le destructeur libere la memoire des items
+    ~Inventory();  // libere les Item*
 
-    // acces aux items (pour la sauvegarde et l'affichage)
-    const vector<Item*>& getItems() const { return m_items; }
-    vector<Item*>& getItemsRaw() { return m_items; }
+    const vector<Item*>& getItems()    const { return m_items; }
+    vector<Item*>&       getItemsRaw()       { return m_items; }
 
-    // ajouter un item
     void addItem(Item* item);
-
-    // utiliser un item a un index donne
     bool useItem(int index, Player& player);
-
-    // afficher tout l'inventaire
     void display() const;
 
-    // verifications
-    bool isEmpty() const;
-    bool hasUsableItems() const;  // verifie si il reste des objets utilisables
-    int size() const;
+    bool isEmpty()        const;
+    bool hasUsableItems() const;
+    int  size()           const;
 };

@@ -1,3 +1,4 @@
+// ActionAct.h — COMPOSITION dans ActCatalogue : ActCatalogue *-- ActAction
 #pragma once
 #include <string>
 #include <vector>
@@ -5,37 +6,31 @@
 
 using namespace std;
 
-// ActionAct : represente une action pacifiste (ACT) dans le jeu
-// chaque action a un ID, un texte affiche et un impact sur la mercy
 class ActAction {
 private:
-    string m_id;            // identifiant unique (ex: "FLATTER")
-    string m_displayText;   // texte affiche au joueur
-    int m_mercyImpact;      // combien ca change la mercy (+, -, ou 0)
+    string m_id;
+    string m_displayText;
+    int    m_mercyImpact;
 
 public:
-    // constructeur : on donne l'id, le texte et l'impact mercy
-    ActAction(string id, string text, int mercyImpact);
+    ActAction(const string& id, const string& text, int mercyImpact);
 
-    // getters
-    string getId() const { return m_id; }
-    string getDisplayText() const { return m_displayText; }
+    const string& getId()          const { return m_id;          }
+    const string& getDisplayText() const { return m_displayText; }
 
-    // calcul de l'impact sur la mercy avec un peut de hasard
+    // Impact mercy avec variance aleatoire
     int getMercyImpact() const {
         if (m_mercyImpact > 0) {
-            // variance aleatoire entre -10 et +20
             int variance = (rand() % 31) - 10;
             int resultat = m_mercyImpact + variance;
-            if (resultat < 5) resultat = 5;  // minimum 5
+            if (resultat < 5) resultat = 5;
             return resultat;
         }
         else if (m_mercyImpact < 0) {
-            // malus suplementaire aleatoire
             int variance = (rand() % 21);
             return m_mercyImpact - variance;
         }
-        return 0;  // impact neutre
+        return 0;
     }
 
     void display() const;

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualiseur UML Alterdune</title>
+    <style>
+        body { font-family: sans-serif; background: #fdfdfd; padding: 20px; }
+        .mermaid { display: flex; justify-content: center; }
+        .instructions { text-align: center; margin-bottom: 20px; color: #333; }
+    </style>
+</head>
+<body>
+
+    <div class="instructions">
+        <h2>Ton Diagramme UML</h2>
+        <p>Ce fichier génère l'image de ton diagramme à partir du code. <br>
+        Fais un <b>clic-droit sur l'image -> Enregistrer l'image sous...</b> pour récupérer le PNG !</p>
+    </div>
+
+    <div class="mermaid">
+classDiagram
+    %% Relations GameManager
+    GameManager *-- "1" Player : m_player
+    GameManager *-- "1" Bestiary : m_bestiary
+    GameManager *-- "0..*" Monster : m_monsterPool
+    GameManager ..> "0..*" Combat : instancie
+    GameManager ..> FileLoader : appelle
+    GameManager ..> SaveManager : appelle
+    GameManager ..> ActCatalogue : init()
+
+    %% Relations Bestiary
+    Bestiary *-- "0..*" BestiaryEntry : m_entries
+
+    %% Relations Combat
+    Combat --> "1" Player : utilise (référence)
+    Combat *-- "1" Monster : possède (copie)
+
+    %% Relations ActCatalogue
+    ActCatalogue *-- "0..*" ActAction : contient (static map)
+
+    %% Héritage Entity
+    Entity <|-- Player
+    Entity <|-- Monster
+
+    %% Relations Player / Inventory / Item
+    Player *-- "1" Inventory : possède
+    Inventory o-- "0..*" Item : m_items
+
+    %% Héritage Item
+    Item <|-- HealItem
+
+    class GameManager {
+        -m_player : Player*
+        -m_bestiary : Bestiary
+        -m_monsterPool : vector~Monster~
+        -jeuEnCours : bool
+        +GameManager()
+        +~GameManager()
+        +demarrer() : void
+        +showMainMenu() : void
+        +lancerCombat() : void
+        +showEnding() : void
+    }
+
+    class Bestiary {
+        -m_entries : vector~BestiaryEntry~
+        +addEntry(m: Monster, killed: bool) : void
+        +addRawEntry(name: string, cat: string, hp: int, atk: int, def: int, killed: bool) : void
+        +display() : void
+        +clear() : void
+        +getEntries() : vector~BestiaryEntry~
+        +totalKilled() : int
+        +totalSpared() : int
+    }
+
+    class BestiaryEntry {
+        <<struct>>
+        +m_monsterName : string
+        +m_category : string
+        +m_hp : int
+        +m_atk : int
+        +m_def : int
+        +m_wasKilled : bool
+        +display() : void
+        +wasKilled() : bool
+    }
+
+    class FileLoader {
+        +loadItems(filepath: string, player: Player&) : void$
+        +loadMonsters(filepath: string) : vector~Monster~$
+        -trim(s: string) : string$
+    }
+
+    class SaveManager {
+        +saveGame(filename: string, player: Player, bestiary: Bestiary) : bool$
+        +loadGame(filename: string, player: Player&, bestiary: Bestiary&) : bool$
+        -trim(s: string) : string$
+    }
+
+    class Combat {
+        -m_player : Player&
+        -m_monster : Monster
+        -m_result : CombatResult
+        +Combat(player: Player&, monster: Monster)
+        +run() : void
+        +getResult() : CombatResult
+        -tourJoueur() : bool
+        -tourMonstre() : bool
+        -calculerDegats(atk: int) : int
+        -afficherEcranCombat(msg: string) : void
+        -afficherApparitionPokemon() : void
+        -afficherVictoire() : void
+        -makeHpBar(hp: int, hpMax: int, barLen: int) : string
+        -lireAsciiLines() : vector~string~
+        -getCouleurMonstre() : string
+        -getAsciiFilePath() : string
+    }
+
+    class ActCatalogue {
+        -s_actions : map~string,ActAction~ $
+        +init() : void$
+        +getAction(id: string) : ActAction*$
+        +displayAvailable(ids: vector~string~, out: vector~ActAction~&) : void$
+    }
+
+    class ActAction {
+        -m_id : string
+        -m_displayText : string
+        -m_mercyImpact : int
+        +getId() : string
+        +getDisplayText() : string
+        +getMercyImpact() : int
+        +display() : void
+    }
+
+    class Entity {
+        <<abstract>>
+        #m_name : string
+        #m_hp : int
+        #m_hpMax : int
+        #m_atk : int
+        #m_def : int
+        +getName() : string
+        +getHp() : int
+        +getHpMax() : int
+        +getAtk() : int
+        +getDef() : int
+        +setHp(hp: int) : void
+        +isAlive() : bool
+        +takeDamage(dmg: int) : int
+        +display() : void*
+        +getType() : string*
+    }
+
+    class Player {
+        -m_inventory : Inventory
+        -m_kills : int
+        -m_spared : int
+        -m_victories : int
+        +display() : void
+        +getType() : string
+        +getInventory() : Inventory&
+        +getSpared() : int
+        +addSpared() : void
+        +getKills() : int
+        +setSpared(s: int) : void
+        +getVictories() : int
+        +setKills(k: int) : void
+        +setVictories(v: int) : void
+        +setName(n: string) : void
+        +loadStateHp(hp: int, maxHp: int) : void
+        +setStats(atk: int, def: int) : void
+        +displayStats() : void
+        +hasWon() : bool
+    }
+
+    class Monster {
+        -m_category : MonsterCategory
+        -m_mercy : int
+        -m_mercyGoal : int
+        -m_actIds : vector~string~
+        +display() : void
+        +getType() : string
+        +getCategory() : MonsterCategory
+        +getCategoryStr() : string
+        +getMercy() : int
+        +getMercyGoal() : int
+        +addMercy(amount: int) : void
+        +isMercyFull() : bool
+        +getActIds() : vector~string~
+        +getActCount() : int
+        +clone() : Monster
+    }
+
+    class Inventory {
+        -m_items : vector~Item*~
+        +~Inventory()
+        +getItems() : vector~Item*~
+        +addItem(item: Item*) : void
+        +useItem(index: int, player: Player&) : bool
+        +display() : void
+        +isEmpty() : bool
+        +hasUsableItems() : bool
+        +size() : int
+    }
+
+    class Item {
+        <<abstract>>
+        #m_name : string
+        #m_type : string
+        #m_value : int
+        #m_quantity : int
+        +getName() : string
+        +getType() : string
+        +getValue() : int
+        +getQuantity() : int
+        +use() : bool
+        +applyEffect(player: Player&) : void*
+        +display() : void
+    }
+
+    class HealItem {
+        +applyEffect(player: Player&) : void
+        +display() : void
+    }
+    </div>
+
+    <!-- Script pour transformer le texte en image -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

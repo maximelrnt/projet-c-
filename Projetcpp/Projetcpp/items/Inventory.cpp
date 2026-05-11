@@ -1,15 +1,15 @@
+// Inventory.cpp — COMPOSITION : possede et libere les Item*
 #include "Inventory.h"
 #include "../core/Player.h"
 #include <iostream>
 
 using namespace std;
 
-// constructeur : on initialise le vector vide (il se cree tout seul)
 Inventory::Inventory() {
-    // le vector m_items est vide par defaut
+    // m_items est un vector vide par defaut, rien a initialiser
 }
 
-// destructeur : on libere la memoire de chaque item
+// Destructeur : libere chaque Item* (COMPOSITION)
 Inventory::~Inventory() {
     for (int i = 0; i < (int)m_items.size(); i++) {
         delete m_items[i];
@@ -17,12 +17,11 @@ Inventory::~Inventory() {
     m_items.clear();
 }
 
-// ajoute un item au tableau
 void Inventory::addItem(Item* item) {
     m_items.push_back(item);
 }
 
-// utilise l'item a l'index donne, applique l'efet sur le joueur
+// POLYMORPHISME : applyEffect() appelle la bonne sous-classe via le pointeur Item*
 bool Inventory::useItem(int index, Player& player) {
     if (index < 0 || index >= (int)m_items.size()) {
         return false;
@@ -34,10 +33,9 @@ bool Inventory::useItem(int index, Player& player) {
         return true;
     }
 
-    return false;  // plus de quantite
+    return false;
 }
 
-// affiche la liste des items
 void Inventory::display() const {
     if (isEmpty()) {
         cout << "  Inventaire vide." << endl;
@@ -50,12 +48,10 @@ void Inventory::display() const {
     }
 }
 
-// verifie si l'inventaire est vide
 bool Inventory::isEmpty() const {
     return m_items.empty();
 }
 
-// verifie si il y a au moins un item avec quantite > 0
 bool Inventory::hasUsableItems() const {
     if (isEmpty()) return false;
 
@@ -65,7 +61,6 @@ bool Inventory::hasUsableItems() const {
     return false;
 }
 
-// retounre le nombre d'items
 int Inventory::size() const {
     return (int)m_items.size();
 }
