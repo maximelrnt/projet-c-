@@ -13,7 +13,8 @@ private:
     vector<Item*> m_items;  // tableau de pointeurs vers les items
 
 public:
-    Inventory() {}
+    // constructeur : cree un inventaire vide
+    Inventory();
     ~Inventory();  // le destructeur libere la memoire des items
 
     // acces aux items (pour la sauvegarde et l'affichage)

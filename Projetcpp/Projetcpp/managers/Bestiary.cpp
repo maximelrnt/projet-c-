@@ -3,6 +3,16 @@
 
 using namespace std;
 
+// constructeur : le vector est vide au depart
+Bestiary::Bestiary() {
+    // rien a faire, le vector se cree tout seul
+}
+
+// destructeur : le vector se detruit automatiquement
+Bestiary::~Bestiary() {
+    m_entries.clear();
+}
+
 // affiche une entree du bestiaire
 void BestiaryEntry::display() const {
     cout << "  [" << m_category << "] " << m_monsterName

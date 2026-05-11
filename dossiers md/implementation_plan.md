@@ -1,7 +1,8 @@
 # Plan d'implementation : ALTERDUNE (Projet C++)
 
-> Derniere mise a jour : 05/04/2026
+> Derniere mise a jour : 15/04/2026
 > Source de verite du binome : Louis Le Forestier & Maxime
+> Ajout récent : Cardinalités dans le diagramme UML.
 
 ---
 

@@ -4,7 +4,7 @@
 > Auteur du sujet : Daniel Wladdimiro  
 > Binôme : Louis Le Forestier & Maxime  
 > Soutenance mini-suivi : **08/04** | Soutenance P1 : **29/04** | P2 : **06/05**  
-> **Dernière mise à jour : 12/04/2026 — Musique (PlaySound winmm), amélioration menus ANSI, fix warnings Unicode**
+> **Dernière mise à jour : 11/05/2026 — Constructeurs explicites ajoutés (Bestiary, Inventory, ActAction), fix cohérence .h/.cpp**
 
 ---
 
@@ -200,6 +200,7 @@ enum class MonsterCategory { NORMAL, MINIBOSS, BOSS };
 | `m_items` | `vector<Item*>` | Liste des items (pointeurs) |
 
 **Méthodes :**
+- `Inventory()` → constructeur, initialise le vector vide
 - `~Inventory()` → destructeur libère la mémoire (`delete`)
 - `void addItem(Item* item)`
 - `bool useItem(int index, Player& player)`
@@ -263,6 +264,8 @@ Deux constructeurs : depuis `Monster` ou depuis données brutes (pour la sauvega
 ### 3.10 `Bestiary` (managers/Bestiary.h + Bestiary.cpp)
 
 **Rôle :** Collection de BestiaryEntry, affichée dans le menu.
+
+**Constructeur/Destructeur :** `Bestiary()` initialise le vector vide, `~Bestiary()` nettoie les entries.
 
 ```cpp
 vector<BestiaryEntry> m_entries;
@@ -375,23 +378,23 @@ Voir le fichier [`Untitled-1.mmd`](uml/Untitled-1.mmd) (format Mermaid, viewable
 
 Résumé des relations :
 
-| Relation | De | Vers | Type |
-|---|---|---|---|
-| Héritage | Player | Entity | `<|--` |
-| Héritage | Monster | Entity | `<|--` |
-| Héritage | HealItem | Item | `<|--` |
-| Composition | Player | Inventory | `*--` |
-| Composition | Inventory | Item | `*--` |
-| Composition | Bestiary | BestiaryEntry | `*--` |
-| Composition | ActCatalogue | ActAction | `*--` |
-| Agrégation | GameManager | Player* | `o--` |
-| Composition | GameManager | Bestiary | `*--` |
-| Association | Combat | Player& | `-->` |
-| Composition | Combat | Monster(copie) | `*--` |
-| Dépendance | GameManager | FileLoader | `..>` |
-| Dépendance | GameManager | SaveManager | `..>` |
-| Dépendance | GameManager | Combat | `..>` |
-| Dépendance | GameManager | ActCatalogue | `..>` |
+| Relation | De | Vers | Type | Cardinalité |
+|---|---|---|---|---|
+| Héritage | Player | Entity | `<|--` | - |
+| Héritage | Monster | Entity | `<|--` | - |
+| Héritage | HealItem | Item | `<|--` | - |
+| Composition | Player | Inventory | `*--` | 1 -- 1 |
+| Composition | Inventory | Item | `*--` | 1 -- * |
+| Composition | Bestiary | BestiaryEntry | `*--` | 1 -- * |
+| Composition | ActCatalogue | ActAction | `*--` | 1 -- * |
+| Agrégation | GameManager | Player* | `o--` | 1 -- 1 |
+| Composition | GameManager | Bestiary | `*--` | 1 -- 1 |
+| Association | Combat | Player& | `-->` | 1 -- 1 |
+| Composition | Combat | Monster(copie) | `*--` | 1 -- 1 |
+| Dépendance | GameManager | FileLoader | `..>` | - |
+| Dépendance | GameManager | SaveManager | `..>` | - |
+| Dépendance | GameManager | Combat | `..>` | - |
+| Dépendance | GameManager | ActCatalogue | `..>` | - |
 
 ---
 
@@ -510,8 +513,8 @@ BOSS; Shrek; 200; 40; 15; 100; FLATTER; CHANTER; DANSER; INSULTER
 - ✅ `HealItem.h/.cpp` — sous-classe concrète
 - ✅ `ActionAct.h/.cpp` — 10 actions dont 2 négatives, variance aléatoire
 - ✅ `ActCatalogue.h/.cpp` — catalogue statique `map<string, ActAction>`
-- ✅ `Inventory.h/.cpp` — composition, destructeur libère la mémoire
-- ✅ `Bestiary.h/.cpp` — `BestiaryEntry` (struct) + `Bestiary` (class)
+- ✅ `Inventory.h/.cpp` — composition, constructeur explicite, destructeur libère la mémoire
+- ✅ `Bestiary.h/.cpp` — `BestiaryEntry` (struct) + `Bestiary` (class), constructeur/destructeur explicites
 - ✅ `FileLoader.h/.cpp` — lecture CSV items + monstres
 - ✅ `SaveManager.h/.cpp` — sauvegarde/chargement `.sav` (**BONUS**)
 - ✅ `Combat.h/.cpp` — boucle combat, UI ANSI style pokemon

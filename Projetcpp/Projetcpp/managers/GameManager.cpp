@@ -56,12 +56,12 @@ static void afficherTitre() {
     cout << GOLD << "  #" << WHITE << "     / \\  | | |_   _| ____| __ \\|  _ \\| | | | \\ | | __| " << GOLD << "#" << RESET << "\n";
     cout << GOLD << "  #" << WHITE << "    / _ \\ | |   | | |  _| |  / /| | | | | | |  \\| |  _| " << GOLD << "#" << RESET << "\n";
     cout << GOLD << "  #" << WHITE << "   / ___ \\| |___| | | |___|  \\ \\| |_| | |_| | |\\  | |__ " << GOLD << "#" << RESET << "\n";
-    cout << GOLD << "  #" << WHITE << "  /_/   \\_\\_____|_| |_____|_|\\_\\|____/ \\___/|_| \\_|____| " << GOLD << "#" << RESET << "\n";
+    cout << GOLD << "  #" << WHITE << "  /_/   \\_\\_____|_| |_____|_|\\_\\|____/ \\___/|_| \\_|____|" << GOLD << "#" << RESET << "\n";
     cout << GOLD << "  #                                                        #" << RESET << "\n";
-    cout << GOLD << "  #          " << CYAN << "~~  D U N E    E D I T I O N  ~~" << GOLD << "            #" << RESET << "\n";
+    cout << GOLD << "  #          " << CYAN << "~~  D U N E    E D I T I O N  ~~    " << GOLD << "          #" << RESET << "\n";
     cout << GOLD << "  #                                                        #" << RESET << "\n";
-    cout << GOLD << "  #" << DIM << "        Un RPG console inspire d'Undertale" << GOLD << "             #" << RESET << "\n";
-    cout << GOLD << "  #" << DIM << "          ESILV A3  --  Projet C++ POO" << GOLD << "                #" << RESET << "\n";
+    cout << GOLD << "  #" << DIM << "        Un RPG console inspire d'Undertale " << GOLD << "             #" << RESET << "\n";
+    cout << GOLD << "  #" << DIM << "          ESILV A3  --  Projet C++ POO  " << GOLD << "                #" << RESET << "\n";
     cout << GOLD << "  #                                                        #" << RESET << "\n";
     cout << GOLD << "  #========================================================#" << RESET << "\n";
     cout << "\n";
@@ -186,7 +186,7 @@ void GameManager::showMainMenu() {
             }
             else {
                 cout << "\n" << GOLD << "  #===================#" << RESET << "\n";
-                cout << GOLD << "  #" << WHITE << "    INVENTAIRE" << GOLD << "      #" << RESET << "\n";
+                cout << GOLD << "  #" << WHITE << "    INVENTAIRE" << GOLD << "     #" << RESET << "\n";
                 cout << GOLD << "  #===================#" << RESET << "\n\n";
                 m_player->getInventory().display();
             }
@@ -201,7 +201,7 @@ void GameManager::showMainMenu() {
             system("clear");
 #endif
             cout << "\n" << GOLD << "  #===================#" << RESET << "\n";
-            cout << GOLD << "  #" << WHITE << "    BESTIAIRE" << GOLD << "       #" << RESET << "\n";
+            cout << GOLD << "  #" << WHITE << "    BESTIAIRE" << GOLD << "      #" << RESET << "\n";
             cout << GOLD << "  #===================#" << RESET << "\n\n";
             m_bestiary.display();
             cout << "\n" << DIM << "  (Appuyez sur Enter pour continuer)" << RESET;

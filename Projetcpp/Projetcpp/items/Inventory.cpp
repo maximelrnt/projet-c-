@@ -4,6 +4,11 @@
 
 using namespace std;
 
+// constructeur : on initialise le vector vide (il se cree tout seul)
+Inventory::Inventory() {
+    // le vector m_items est vide par defaut
+}
+
 // destructeur : on libere la memoire de chaque item
 Inventory::~Inventory() {
     for (int i = 0; i < (int)m_items.size(); i++) {

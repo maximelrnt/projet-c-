@@ -3,6 +3,13 @@
 
 using namespace std;
 
+// constructeur : on met les valeurs dans les attributs
+ActAction::ActAction(string id, string text, int mercyImpact) {
+    m_id = id;
+    m_displayText = text;
+    m_mercyImpact = mercyImpact;
+}
+
 // affiche l'action avec un indicateur +Mercy ou -Mercy
 void ActAction::display() const {
     cout << "  [" << m_id << "] " << m_displayText;

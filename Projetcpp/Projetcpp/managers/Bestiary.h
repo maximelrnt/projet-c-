@@ -33,6 +33,11 @@ private:
     vector<BestiaryEntry> m_entries;
 
 public:
+    // constructeur : on initialise le vector vide
+    Bestiary();
+    // destructeur
+    ~Bestiary();
+
     // ajouter une entree depuis un monstre
     void addEntry(const Monster& m, bool killed);
 

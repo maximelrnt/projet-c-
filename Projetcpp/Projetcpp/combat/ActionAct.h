@@ -14,9 +14,8 @@ private:
     int m_mercyImpact;      // combien ca change la mercy (+, -, ou 0)
 
 public:
-    // constructuer
-    ActAction(string id, string text, int mercyImpact)
-        : m_id(id), m_displayText(text), m_mercyImpact(mercyImpact) {}
+    // constructeur : on donne l'id, le texte et l'impact mercy
+    ActAction(string id, string text, int mercyImpact);
 
     // getters
     string getId() const { return m_id; }
